@@ -80,7 +80,7 @@ public class GameEventManager : MonoBehaviour
         if (evt.IsEmptyEvent)
             return;
 
-        Action OnInteract = () => ExecuteJyx2Event(curEvent.m_InteractiveEventId);
+        Action OnInteract = () => ExecuteJyx2Event(evt.m_InteractiveEventId);
         Action OnUseItem = () => OnClickedUseItemButton();
 
         if (evt.IsInteractiveEvent && evt.IsUseItemEvent)
@@ -115,7 +115,7 @@ public class GameEventManager : MonoBehaviour
     bool TryTrigger(GameEvent evt)
     {
         //直接触发
-        if (evt.IsTriggerEnterEvent && !LuaExecutor.IsExecuting())
+        if (evt.IsTriggerEnterEvent && !LuaExecutor.IsExecuting() && GetCurrentGameEvent() == null)
         {
             ExecuteJyx2Event(evt.m_EnterEventId);
             return true;
@@ -152,7 +152,6 @@ public class GameEventManager : MonoBehaviour
 
         if (GetCurrentGameEvent() != null)
         {
-            Debug.LogError("错误：在一个事件执行完毕以前不能执行新的事件。");
             return;
         }
 
@@ -164,7 +163,16 @@ public class GameEventManager : MonoBehaviour
             Jyx2Player.GetPlayer()?.StopPlayerMovement();
         }
         
-        SetCurrentGameEvent(curEvent);
+        var executingEvent = curEvent;
+        if (executingEvent != null)
+        {
+            if (executingEvent.HasEventTargets)
+                UnityTools.DisHighLightObjects(executingEvent.m_EventTargets);
+
+            Jyx2_UIManager.Instance.HideUI(nameof(InteractUIPanel));
+        }
+
+        SetCurrentGameEvent(executingEvent);
         
         //设置运行环境上下文
         JYX2EventContext.current = context;

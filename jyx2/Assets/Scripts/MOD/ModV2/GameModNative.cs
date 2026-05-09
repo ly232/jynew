@@ -58,9 +58,9 @@ namespace Jyx2.MOD.ModV2
             
             foreach (var line in samples.Split(','))
             {
-                if (line.StartsWith("#")) continue;
-                if (string.IsNullOrEmpty(line)) continue;
                 var modId = line.Trim();
+                if (modId.StartsWith("#")) continue;
+                if (string.IsNullOrEmpty(modId)) continue;
 
                 var mod = await TryLoadModIndexer(modId);
                 if (mod != null)
@@ -84,7 +84,25 @@ namespace Jyx2.MOD.ModV2
             return mod;
         } 
         
-        static async UniTask<string> GetTextForStreamingAssets(string path)
+        static UniTask<string> GetTextForStreamingAssets(string path)
+        {
+#if !UNITY_ANDROID && !UNITY_WEBGL
+            var filePath = Path.Combine(Application.streamingAssetsPath, path);
+            if (!File.Exists(filePath))
+            {
+#if !UNITY_EDITOR
+                Debug.LogError("GameModNative相关文件丢失, Mod加载可能会有问题, 文件路径:" + filePath);
+#endif
+                return UniTask.FromResult<string>(null);
+            }
+            return UniTask.FromResult(File.ReadAllText(filePath));
+#else
+            return GetTextForStreamingAssetsWeb(path);
+#endif
+        }
+
+#if UNITY_ANDROID || UNITY_WEBGL
+        static async UniTask<string> GetTextForStreamingAssetsWeb(string path)
         {
             var uri = new System.Uri(Path.Combine(Application.streamingAssetsPath, path));
             UnityWebRequest request = UnityWebRequest.Get(uri);
@@ -113,6 +131,7 @@ namespace Jyx2.MOD.ModV2
                 return null;
             }
         }
+#endif
 
     }
 }

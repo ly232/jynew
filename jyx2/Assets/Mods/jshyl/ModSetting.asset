@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f09715844ea8af3499df603b581891d1, type: 3}
+  m_Name: ModSetting
+  m_EditorClassIdentifier: 
+  ModId: jshyl
+  IsNativeMod: 1
+  Desc: "样例MOD：金书红颜录5 如画江山。\n\n本MOD以 TPRHandbook 的《金书红颜录5 如画江山》5.52j 电子书为路线蓝本，演示如何把密集的武侠剧情攻略拆解为“群侠传，启动！”框架中的路线、事件、战斗、奖励和分支状态。\n\n当前版本提供MOD根配置、JYX2兼容配置表种子、路线索引和实现说明，后续可按路线逐步补齐可游玩的事件链。"
+  Version: 0.1.0
+  ModName: "金书红颜录5 如画江山"
+  ModRootDir: Assets/Mods/jshyl
+  Author: jynew community sample
+  LuaFilePatten: '{0}'
+  ModArchiveVersion: 0
+  PlayerName: "慕容主角"
+  PreloadedLua:
+  - jshyl_story_index
+  - jshyl_route_data
+  - modentry
+  EnableSaveBigMapOnly: 1
+  EnableKickTeammateBigMapOnly: 1
+  AutoBattleOnly: 0
+  BattleTimeScale: 1
+  ShowSkillNameInBattle: 0
+  IsConsoleEnable: 1
+  ConsoleDisableDifficulty: []
+  IsPlayUseItemAnimation: 1
+  StoryIdNameFixes:
+  - Id: 0
+    Name: "慕容主角"
+  CameraOffsetNear: {x: 0, y: 0, z: 0}
+  CameraOffsetFar: {x: 0, y: 0, z: 0}

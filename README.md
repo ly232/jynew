@@ -134,6 +134,22 @@ Players can also try it directly and simply enjoy the fun of building teams and 
 
 ---------
 
+## 样例MOD：金书红颜录5 如画江山
+
+*Sample Mod: Tale of Pink Reflection 5 - Rivers and Mountains Like a Painting*
+
+[项目地址](https://github.com/jynew/jynew/tree/main/jyx2/Assets/Mods/jshyl) (Project Link)
+
+一个基于《金书红颜录5 如画江山》路线手册的剧情向MOD样例，演示如何把密集的攻略式路线资料拆解为MOD框架中的剧情路线、事件触发、战斗、队友变化、奖励与分支状态。
+
+A story-route sample mod based on the *Tale of Pink Reflection 5* route handbook. It demonstrates how dense walkthrough-style route material can be organized into story routes, event triggers, battles, party changes, rewards, and branch state in the mod framework.
+
+当前版本提供MOD根配置、JYX2兼容配置表种子、可进入的开局地图、手册路线索引，以及《鸳鸯刀》《越女剑》的事件节点整理，供后续逐步扩展为可完整游玩的路线内容。
+
+The current version provides the mod root config, a JYX2-compatible config seed, an enterable opening map, a handbook route index, and structured event nodes for *Mandarin Duck Blades* and *Sword of the Yue Maiden* as a foundation for future playable route content.
+
+---------
+
 ## 样例MOD：金庸群侠传3D重制版
 
 *Sample Mod: Heroes of Jin Yong 3D Remake*
