@@ -44,14 +44,34 @@ public class MapTeleportor : MonoBehaviour
 		if (!triggerEnabled) return;
 		
 		int transportMapId = -1;
-		if (LevelMaster.GetCurrentGameMap().Tags.Contains("WORLDMAP"))
+		var curMap = LevelMaster.GetCurrentGameMap();
+		if (curMap == null)
 		{
-			transportMapId = LuaToCsBridge.MapTable[0].GetMapByName(this.gameObject.name).Id;
+			Debug.LogError($"传送失败：当前地图配置为空，触发器：{gameObject.name}");
+			return;
 		}
-                else
-                {
-                    transportMapId = LuaToCsBridge.MapTable[LevelMaster.GetCurrentGameMap().GetTransportToMapValue(this.gameObject.name)].Id;
-                }
+		
+		LMapConfig transportMap = null;
+		if (curMap.Tags.Contains("WORLDMAP"))
+		{
+			transportMap = LuaToCsBridge.MapTable[0].GetMapByName(this.gameObject.name);
+		}
+		else
+		{
+			var mapId = curMap.GetTransportToMapValue(this.gameObject.name);
+			if (LuaToCsBridge.MapTable != null && LuaToCsBridge.MapTable.ContainsKey(mapId))
+			{
+				transportMap = LuaToCsBridge.MapTable[mapId];
+			}
+		}
+
+		if (transportMap == null)
+		{
+			Debug.LogError($"传送失败：找不到触发器 {gameObject.name} 对应的目标地图。当前地图：{curMap.Name}，配置：{curMap.TransportToMap}");
+			return;
+		}
+
+		transportMapId = transportMap.Id;
 		//---------------------------------------------------------------------------
 		//await ShowEnterButton(LevelMaster.GetCurrentGameMap().TransportToMap, TransportTriggerName, ButtonText);
 		//---------------------------------------------------------------------------

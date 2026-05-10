@@ -102,7 +102,7 @@ namespace Jyx2.MOD.ModV2
             }
             catch (Exception e)
             {
-                Debug.LogError("steam没有启动或登录，所以steamWorkShopLoader不可用。启动steam后重启游戏方可生效。");
+                Debug.LogWarning("steam没有启动或登录，所以steamWorkShopLoader不可用。启动steam后重启游戏方可生效。");
             }
         }
 

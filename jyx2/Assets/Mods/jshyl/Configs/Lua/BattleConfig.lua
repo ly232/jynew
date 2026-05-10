@@ -159,6 +159,7 @@ local data = {
 {137,[[无用]],[[Jyx2Battle_21]],0,7,{-1},{0},{69}},
 {138,[[无用]],[[Jyx2Battle_21]],0,7,{-1},{0},{69}},
 {139,[[无用]],[[Jyx2Battle_21]],0,7,{-1},{0},{69}},
+{140,[[越女剑初遇]],[[Jyx2Battle_5]],300,5,{320},{-1},{301,302}},
 }
 local helper = jy_utils.prequire('Jyx2Configs/BattleHelper')
 local mt = {}

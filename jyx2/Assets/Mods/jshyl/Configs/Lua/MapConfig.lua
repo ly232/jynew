@@ -19,7 +19,7 @@ fieldIdx.OutMusic = 6
 fieldIdx.EnterCondition = 7
 fieldIdx.Tags = 8
 local data = {
-{0,[[燕子坞旧书房]],[[00_mochuanlinju]],[[Leave:1000]],19,-1,0,[[START:0]]},
+{0,[[小虾米居]],[[70_xiaoxiamiju]],[[Leave:1000]],-1,19,0,[[START:0]]},
 {1,[[河洛客栈]],[[01_heluokezhan]],[[Leave:1000]],2,19,0,""},
 {2,[[云鹤崖]],[[02_yunheya]],[[Leave:1000]],-1,19,1,""},
 {3,[[有间客栈]],[[03_youjiankezhan]],[[Leave:1000]],2,19,0,""},
@@ -89,7 +89,7 @@ local data = {
 {67,[[昆仑山洞]],[[67_shandong]],[[Leave:1000,Leave2:4]],12,16,1,[[POINTLIGHT]]},
 {68,[[昆仑派]],[[68_kunlunpai]],[[Leave:1000]],4,0,1,""},
 {69,[[白驼山]],[[69_baituoshan]],[[Leave:1000]],4,0,1,""},
-{70,[[小虾米居]],[[70_xiaoxiamiju]],[[Leave:1000]],-1,19,0,""},
+{70,[[小虾米居]],[[70_xiaoxiamiju]],[[Leave:1000]],-1,19,0,[[START:0]]},
 {71,[[神龙教]],[[71_shenlongjiao]],[[Leave:1000]],-1,0,1,""},
 {72,[[冰火岛]],[[72_binghuodao]],[[Leave:1000]],12,16,1,[[POINTLIGHT]]},
 {73,[[灵蛇岛]],[[73_lingshedao]],[[Leave:1000]],-1,0,1,""},

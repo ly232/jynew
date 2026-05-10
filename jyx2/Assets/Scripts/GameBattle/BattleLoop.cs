@@ -88,6 +88,17 @@ namespace Jyx2.Battle
         //标记当前激活角色
         async UniTask SetCurrentRole(RoleInstance role)
         {
+            if (role == null || role.View == null || role.View.gameObject == null)
+            {
+                GameUtil.LogError($"错误：当前行动角色 {role?.Key.ToString() ?? "<null>"} 没有有效的战斗视图");
+                return;
+            }
+
+            if (m_roleFocusRing == null)
+            {
+                m_roleFocusRing = Jyx2ResourceHelper.CreatePrefabInstance("CurrentBattleRoleTag");
+            }
+
             //切换摄像机跟随角色
             CameraHelper.Instance.ChangeFollow(role.View.transform);
 
@@ -95,6 +106,11 @@ namespace Jyx2.Battle
             await Jyx2_UIManager.Instance.ShowUIAsync(nameof(BattleMainUIPanel), BattleMainUIState.ShowRole, role);
 
             //选中框 跟随目标
+            if (role.View == null || role.View.gameObject == null || m_roleFocusRing == null)
+            {
+                return;
+            }
+
             m_roleFocusRing.transform.SetParent(role.View.transform, false);
 
             //略微比地面高一点

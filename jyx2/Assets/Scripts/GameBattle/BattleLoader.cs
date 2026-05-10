@@ -329,7 +329,7 @@ public class BattleLoader : MonoBehaviour
 
     bool setPlayer = false;
 
-    UniTask CreateRole(RoleInstance role, int team, Transform pos)
+    async UniTask CreateRole(RoleInstance role, int team, Transform pos)
     {
         //Debug.Log($"--------BattleLoader.CreateRole, role={role.Name}, team={team}, pos={pos.name}");
         role.LeaveBattle();
@@ -357,6 +357,6 @@ public class BattleLoader : MonoBehaviour
         roleView.transform.SetParent(npcRoot.transform, false);
         roleView.transform.position = pos.position;
         role.team = team;
-        return roleView.RefreshModel(); //刷新模型
+        await roleView.RefreshModel();
     }
 }

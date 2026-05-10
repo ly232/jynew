@@ -267,6 +267,12 @@ public class BattleRole : Jyx2AnimationBattleRole
     public void SwitchSkillTo(SkillInstance skill)
     {
         var display = skill.GetDisplay();
+        if (display == null)
+        {
+            Debug.LogError($"技能展现配置为空，无法切换战斗动作，角色:{DataInstance?.Name ?? "<null>"}，技能:{skill?.Name ?? "<null>"}");
+            return;
+        }
+
         //切换对应武器
         var weaponCode = display.weaponCode;
         if (weaponCode >= 0)

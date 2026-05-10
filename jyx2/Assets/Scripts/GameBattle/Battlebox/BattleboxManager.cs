@@ -75,6 +75,7 @@ public class BattleboxManager : MonoBehaviour
             }
         }
 
+        InitCollider();
         if (m_Dataset == null || !CheckSize())
         {
             CreateDataset();

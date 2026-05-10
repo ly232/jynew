@@ -17,7 +17,36 @@ Shader "SkillEffect/GhostShadow"
 		// 写入深度，修复龙透明效果不正确问题
 		Pass
 		{
-		    ColorMask 0
+			ColorMask 0
+
+			CGPROGRAM
+			#pragma vertex vert
+			#pragma fragment frag
+
+			#include "UnityCG.cginc"
+
+			struct appdata
+			{
+				float4 vertex : POSITION;
+			};
+
+			struct v2f
+			{
+				float4 pos : SV_POSITION;
+			};
+
+			v2f vert(appdata v)
+			{
+				v2f o;
+				o.pos = UnityObjectToClipPos(v.vertex);
+				return o;
+			}
+
+			fixed4 frag(v2f i) : SV_Target
+			{
+				return 0;
+			}
+			ENDCG
 		}
 		
 		Pass
@@ -35,7 +64,6 @@ Shader "SkillEffect/GhostShadow"
 		struct appdata
 		{
 			float4 vertex : POSITION;
-			float3 normal:Normal;
 		};
 
 		struct v2f
@@ -51,13 +79,11 @@ Shader "SkillEffect/GhostShadow"
 		{
 			v2f o;
 			o.pos = UnityObjectToClipPos(v.vertex);
-			float3 viewDir = normalize(ObjSpaceViewDir(v.vertex));//计算出顶点到相机的向量
-			float val = 1 - saturate(dot(v.normal, viewDir));//计算点乘值
-			o.color = _RimColor * val * (1 + _RimIntensity);//计算强度
+			o.color = _RimColor * (1 + _RimIntensity);//计算强度
 			return o;
 		}
 
-		fixed4 frag(v2f i) : COLOR
+		fixed4 frag(v2f i) : SV_Target
 		{
 			return i.color;
 		}
