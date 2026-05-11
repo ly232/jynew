@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Cysharp.Threading.Tasks;
 using Jyx2;
 using Jyx2.MOD.ModV2;
@@ -75,7 +76,9 @@ public static class Jyx2ModSmokeTest
             ValidateStartSceneAsset(modId);
             ValidateSceneEventLuaFilesForScene(modId, $"Assets/Mods/{modId}/Maps/GameMaps/67_shandong.unity");
             ValidateSceneEventLuaFilesForScene(modId, $"Assets/Mods/{modId}/Maps/GameMaps/04_kunlunxianjing.unity");
+            ValidateJshylLuaUsesExposedFlagApi(modId);
             ValidateKunlunHongyanStoryAssets(modId);
+            ValidateJshylBattleSkillDisplayAssets(modId);
 
             Debug.Log($"[Jyx2ModSmokeTest] Basic gameplay checks passed for '{modId}'.");
             EditorApplication.Exit(0);
@@ -578,7 +581,7 @@ public static class Jyx2ModSmokeTest
             .Select(r => r.DataInstance.GetJyx2RoleId())
             .OrderBy(id => id)
             .ToArray();
-        if (!roleIds.Contains(0) || !roleIds.Contains(320) || !roleIds.Contains(301) || !roleIds.Contains(302))
+        if (!roleIds.Contains(0) || !roleIds.Contains(320) || !roleIds.Contains(321) || !roleIds.Contains(331))
         {
             throw new Exception($"Battle '{battleId}' role roster is wrong: {string.Join(",", roleIds)}");
         }
@@ -646,7 +649,7 @@ public static class Jyx2ModSmokeTest
             .OrderBy(id => id)
             .ToArray();
 
-        if (!roleIds.Contains(0) || !roleIds.Contains(320) || !roleIds.Contains(301) || !roleIds.Contains(302))
+        if (!roleIds.Contains(0) || !roleIds.Contains(320) || !roleIds.Contains(321) || !roleIds.Contains(331))
         {
             return;
         }
@@ -770,10 +773,10 @@ public static class Jyx2ModSmokeTest
             throw new Exception($"Missing JYX2 battle scene copy for A-Qing first fight: {battleMapPath}");
         }
 
-        var duguSkillPath = $"Assets/Mods/{modId}/Skills/独孤九剑.asset";
-        if (!File.Exists(duguSkillPath))
+        var yuenvSkillPath = $"Assets/Mods/{modId}/Skills/越女剑法.asset";
+        if (!File.Exists(yuenvSkillPath))
         {
-            throw new Exception($"Missing copied skill display asset for A-Qing's opening battle skill: {duguSkillPath}");
+            throw new Exception($"Missing copied skill display asset for A-Qing's opening battle skill: {yuenvSkillPath}");
         }
 
         Debug.Log($"[Jyx2ModSmokeTest] JYX2 baseline start scene is configured: {Jyx2BaselineStartScene}");
@@ -794,7 +797,10 @@ public static class Jyx2ModSmokeTest
             throw new Exception("A-Qing model asset must use the full Chengying prefab instead of the old Xiaolongnv placeholder.");
         }
 
-        foreach (var roleModel in new[] { "小虾米", "阿青", "明教弟子" })
+        foreach (var roleModel in new[] {
+            "小虾米", "阿青", "觉远", "何足道", "白猿", "无相", "无色", "尹克西", "潇湘子",
+            "西域三僧甲", "西域三僧乙", "西域三僧丙", "天鸣", "卓不凡", "公孙止", "九天玄女"
+        })
         {
             var roleModelPath = $"Assets/Mods/{modId}/Models/{roleModel}.asset";
             if (AssetDatabase.LoadAssetAtPath<ModelAsset>(roleModelPath) == null)
@@ -803,7 +809,7 @@ public static class Jyx2ModSmokeTest
             }
         }
 
-        foreach (var skillDisplay in new[] { "野球拳", "独孤九剑", "火焰发射器" })
+        foreach (var skillDisplay in new[] { "野球拳", "越女剑法", "火焰发射器" })
         {
             var skillPath = $"Assets/Mods/{modId}/Skills/{skillDisplay}.asset";
             if (!File.Exists(skillPath))
@@ -813,21 +819,56 @@ public static class Jyx2ModSmokeTest
         }
 
         var characterConfig = File.ReadAllText($"Assets/Mods/{modId}/Configs/Lua/CharacterConfig.lua");
-        if (!characterConfig.Contains("{320,63,") || !characterConfig.Contains("[[阿青]]"))
+        if (!characterConfig.Contains("{320,320,") || !characterConfig.Contains("[[阿青]]") ||
+            !characterConfig.Contains("{{61,900}}"))
         {
-            throw new Exception("CharacterConfig.lua is missing playable A-Qing role id 320 with Chengying portrait id 63.");
+            throw new Exception("CharacterConfig.lua is missing playable A-Qing role id 320 with generated portrait id 320 and level-10 Yue Nv Jian Fa.");
         }
 
         var battleConfig = File.ReadAllText($"Assets/Mods/{modId}/Configs/Lua/BattleConfig.lua");
-        if (!battleConfig.Contains("{140,[[越女剑初遇]],[[Jyx2Battle_5]],300,5,{320},{-1},{301,302}"))
+        foreach (var requiredBattle in new[] {
+            "{140,[[越女剑初遇群战]],[[Jyx2Battle_5]],900,5,{320},{-1},{321,322,323,324,325,326,327,328,329,330,331}}",
+            "{141,[[越女剑白猿试剑]],[[Jyx2Battle_5]],600,5,{320},{-1},{323}}",
+            "{142,[[万仙大会卓不凡]],[[Jyx2Battle_5]],1000,5,{320},{-1},{332}}",
+            "{143,[[绝情谷后公孙止]],[[Jyx2Battle_5]],1100,5,{320},{-1},{333}}",
+            "{144,[[墓碑问玄女]],[[Jyx2Battle_5]],1600,7,{320},{-1},{334}}"
+        })
         {
-            throw new Exception("BattleConfig.lua must configure battle 140 with A-Qing as a fixed teammate and player team selection enabled.");
+            if (!battleConfig.Contains(requiredBattle))
+            {
+                throw new Exception($"BattleConfig.lua is missing required Yue Nv Jian battle: {requiredBattle}");
+            }
         }
 
         var storyLua = File.ReadAllText($"Assets/Mods/{modId}/Lua/70.lua");
-        if (!storyLua.Contains("TryBattle(140)") || storyLua.Contains("下一步会接入正式战斗配置"))
+        if (!storyLua.Contains("TryBattle(140)") || !storyLua.Contains("TryBattle(144)") ||
+            storyLua.Contains("下一步会接入正式战斗配置"))
         {
-            throw new Exception("70.lua must launch battle 140 instead of showing a placeholder battle message.");
+            throw new Exception("70.lua must launch the staged Yue Nv Jian battle route instead of showing placeholder messages.");
+        }
+
+        var itemConfig = File.ReadAllText($"Assets/Mods/{modId}/Configs/Lua/ItemConfig.lua");
+        foreach (var requiredItem in new[] { "[[越女剑谱]]", "[[瑶池仙袖]]", "[[长生诀]]", "[[天元剑气诀]]", "[[玄女剑]]" })
+        {
+            if (!itemConfig.Contains(requiredItem))
+            {
+                throw new Exception($"ItemConfig.lua is missing required sample Hongyan item: {requiredItem}");
+            }
+        }
+
+        var homeTreasureLua = File.ReadAllText($"Assets/Mods/{modId}/Lua/2.lua");
+        foreach (var requiredGive in new[] { "AddItem(94, 1)", "AddItem(95, 1)", "AddItem(109, 1)", "AddItem(117, 1)", "AddItem(120, 1)", "AddItem(200, 1)" })
+        {
+            if (!homeTreasureLua.Contains(requiredGive))
+            {
+                throw new Exception($"Starter house treasure script is missing expected item grant: {requiredGive}");
+            }
+        }
+
+        var aqingHeadPath = "Assets/BuildSource/head/320.png";
+        if (AssetDatabase.LoadAssetAtPath<Sprite>(aqingHeadPath) == null)
+        {
+            throw new Exception($"Generated A-Qing portrait must be importable as a sprite: {aqingHeadPath}");
         }
 
         var scenePath = $"Assets/Mods/{modId}/Maps/GameMaps/04_kunlunxianjing.unity";
@@ -962,6 +1003,77 @@ public static class Jyx2ModSmokeTest
         if (!File.Exists(luaPath))
         {
             missing.Add($"{eventName}:{eventKind}:{eventId}");
+        }
+    }
+
+    private static void ValidateJshylLuaUsesExposedFlagApi(string modId)
+    {
+        var luaDir = $"Assets/Mods/{modId}/Lua";
+        foreach (var luaPath in Directory.GetFiles(luaDir, "*.lua", SearchOption.AllDirectories))
+        {
+            var content = File.ReadAllText(luaPath);
+            if (content.Contains("jyx2_GetFlagInt") || content.Contains("jyx2_SetFlagInt"))
+            {
+                throw new Exception($"{luaPath} uses jyx2_* flag APIs, which are not exposed as global Lua functions. Use GetFlagInt/SetFlagInt instead.");
+            }
+        }
+    }
+
+    private static void ValidateJshylBattleSkillDisplayAssets(string modId)
+    {
+        var skillConfig = File.ReadAllText($"Assets/Mods/{modId}/Configs/Lua/SkillConfig.lua");
+        var characterConfig = File.ReadAllText($"Assets/Mods/{modId}/Configs/Lua/CharacterConfig.lua");
+        var battleConfig = File.ReadAllText($"Assets/Mods/{modId}/Configs/Lua/BattleConfig.lua");
+
+        var skillNamesById = Regex.Matches(skillConfig, @"^\{(\d+),\[\[(.*?)\]\],", RegexOptions.Multiline)
+            .Cast<Match>()
+            .ToDictionary(m => int.Parse(m.Groups[1].Value), m => m.Groups[2].Value);
+
+        var roleRowsById = Regex.Matches(characterConfig, @"^\{(\d+),[^\n]*?\},", RegexOptions.Multiline)
+            .Cast<Match>()
+            .ToDictionary(m => int.Parse(m.Groups[1].Value), m => m.Value);
+
+        var requiredRoleIds = new HashSet<int>();
+        foreach (var battleId in new[] { 140, 141, 142, 143, 144 })
+        {
+            var battleMatch = Regex.Match(battleConfig, $@"\{{{battleId},[^\n]*?\}}\}},");
+            if (!battleMatch.Success)
+            {
+                throw new Exception($"BattleConfig.lua is missing battle {battleId}.");
+            }
+
+            foreach (Match idMatch in Regex.Matches(battleMatch.Value, @"\d+"))
+            {
+                if (int.TryParse(idMatch.Value, out var id) && roleRowsById.ContainsKey(id))
+                {
+                    requiredRoleIds.Add(id);
+                }
+            }
+        }
+
+        foreach (var roleId in requiredRoleIds)
+        {
+            var roleRow = roleRowsById[roleId];
+            var skillsMatch = Regex.Match(roleRow, @"\{\{.*?\}\}");
+            if (!skillsMatch.Success)
+            {
+                continue;
+            }
+
+            foreach (Match skillIdMatch in Regex.Matches(skillsMatch.Value, @"\{(\d+),"))
+            {
+                var skillId = int.Parse(skillIdMatch.Groups[1].Value);
+                if (!skillNamesById.TryGetValue(skillId, out var skillName))
+                {
+                    throw new Exception($"Role {roleId} references missing skill id {skillId}.");
+                }
+
+                var skillAssetPath = $"Assets/Mods/{modId}/Skills/{skillName}.asset";
+                if (!File.Exists(skillAssetPath))
+                {
+                    throw new Exception($"Role {roleId} uses skill '{skillName}', but the skill display asset is missing: {skillAssetPath}");
+                }
+            }
         }
     }
 

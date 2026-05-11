@@ -77,6 +77,14 @@ namespace Jyx2.Middleware
             }
             // Use the AsDataSet extension method
             result = excelReader.AsDataSet();
+            if (result.Tables.Count < 1)
+            {
+                stream.Close();
+                Debug.LogWarning($"Excel file has no readable sheets, skip lua export: {filePath}");
+                colNum = 0;
+                rowNum = 0;
+                return null;
+            }
             //Tables[0] 下标0表示excel文件中第一张表的数据
             colNum = result.Tables[0].Columns.Count;
             rowNum = result.Tables[0].Rows.Count;
@@ -383,20 +391,33 @@ namespace Jyx2.Middleware
         public static void ExportAllLuaFile(string inDir, string outDir)
         {
             Debug.Log("xlsx to lua start.");
-            Clearfiles(outDir);
             Directory.CreateDirectory(outDir);
+            string tempOutDir = Path.Combine(Path.GetTempPath(), "Jyx2ExcelToLua_" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(tempOutDir);
             var files = Directory.GetFiles(inDir, "*.xlsx", SearchOption.AllDirectories);
             foreach (var path in files)
             {
                 //忽略临时文件
                 if (path.Contains("~$")) continue;
-                ExportSingleLuaFile(path, outDir);
+                ExportSingleLuaFile(path, tempOutDir);
             }
+
+            foreach (var path in Directory.GetFiles(tempOutDir, "*.lua", SearchOption.TopDirectoryOnly))
+            {
+                var outPath = Path.Combine(outDir, Path.GetFileName(path));
+                File.Copy(path, outPath, true);
+            }
+
+            Directory.Delete(tempOutDir, true);
         }
 
         public static void ExportSingleLuaFile(string path, string outDir)
         {
             DataRowCollection sheet = ReadExcel(path, out int colNum, out int rowNum);
+            if (sheet == null || rowNum < 1 || colNum < 1)
+            {
+                return;
+            }
             //检查是否需要转化
             if (sheet[0][0].ToString() != "LuaConfigGen") return;
             string outPath = Path.Combine(outDir, sheet[0][1].ToString() + "Config.lua");
