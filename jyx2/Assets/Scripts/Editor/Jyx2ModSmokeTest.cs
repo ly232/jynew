@@ -7,8 +7,10 @@ using Cysharp.Threading.Tasks;
 using Jyx2;
 using Jyx2.MOD.ModV2;
 using UnityEditor;
+using UnityEditor.AI;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.SceneManagement;
 
 public static class Jyx2ModSmokeTest
@@ -16,7 +18,7 @@ public static class Jyx2ModSmokeTest
     private const string PendingKey = "Jyx2ModSmokeTest.Pending";
     private const string StartedKey = "Jyx2ModSmokeTest.Started";
     private const string ModIdKey = "Jyx2ModSmokeTest.ModId";
-    private const string Jyx2BaselineStartScene = "70_xiaoxiamiju";
+    private const string JshylStartScene = "52_yanziwu";
     private static bool s_BattleWatchdogActive;
     private static float s_BattleWatchdogStartedAt;
     private static int s_BattleWatchdogBattleId;
@@ -71,12 +73,14 @@ public static class Jyx2ModSmokeTest
 
             ValidateModLoaderSceneAsset();
             ValidateEditorModIsDiscoverable(modId);
-            ValidateJyx2BaselineStartScene(modId);
+            ValidateJshylStartScene(modId);
             ValidateGhostShadowShader();
             ValidateStartSceneAsset(modId);
+            ValidateSceneEventLuaFilesForScene(modId, $"Assets/Mods/{modId}/Maps/GameMaps/{JshylStartScene}.unity");
             ValidateSceneEventLuaFilesForScene(modId, $"Assets/Mods/{modId}/Maps/GameMaps/67_shandong.unity");
             ValidateSceneEventLuaFilesForScene(modId, $"Assets/Mods/{modId}/Maps/GameMaps/04_kunlunxianjing.unity");
             ValidateJshylLuaUsesExposedFlagApi(modId);
+            ValidateHongyanOpeningAssets(modId);
             ValidateKunlunHongyanStoryAssets(modId);
             ValidateJshylBattleSkillDisplayAssets(modId);
 
@@ -96,7 +100,7 @@ public static class Jyx2ModSmokeTest
         try
         {
             var modId = GetArgValue("-modId") ?? "jshyl";
-            var scenePath = $"Assets/Mods/{modId}/Maps/GameMaps/{Jyx2BaselineStartScene}.unity";
+            var scenePath = $"Assets/Mods/{modId}/Maps/GameMaps/{JshylStartScene}.unity";
             EditorSceneManager.OpenScene(scenePath);
 
             var player = RoleHelper.FindPlayer();
@@ -119,6 +123,318 @@ public static class Jyx2ModSmokeTest
             Debug.LogError(ex.ToString());
             EditorApplication.Exit(1);
         }
+    }
+
+    public static void ConfigureJshylOpeningSceneFromCommandLine()
+    {
+        try
+        {
+            var modId = GetArgValue("-modId") ?? "jshyl";
+            var scenePath = $"Assets/Mods/{modId}/Maps/GameMaps/{JshylStartScene}.unity";
+            if (!File.Exists(scenePath))
+            {
+                File.Copy($"Assets/Mods/JYX2/Maps/GameMaps/{JshylStartScene}.unity", scenePath);
+                AssetDatabase.ImportAsset(scenePath);
+            }
+
+            EditorSceneManager.OpenScene(scenePath);
+            var level = GameObject.Find("Level") ?? new GameObject("Level");
+            var triggers = EnsureChild(level.transform, "Triggers");
+            var npcRoot = EnsureChild(level.transform, "NPC");
+            var dynamicRoot = EnsureChild(level.transform, "Dynamic");
+
+            foreach (var evt in UnityEngine.Object.FindObjectsOfType<GameEvent>())
+            {
+                if (!evt.name.StartsWith("jshyl_", StringComparison.Ordinal))
+                {
+                    evt.m_InteractiveEventId = "-1";
+                    evt.m_UseItemEventId = "-1";
+                    evt.m_EnterEventId = "-1";
+                }
+            }
+
+            EnsureStartTrigger(triggers);
+            OpenYanziwuDoors();
+            RebuildHongyanOpeningWing(dynamicRoot);
+
+            var murong = EnsureNpc(npcRoot, "慕容秋荻", "Assets/BuildSource/ModelCharacters/BattleNpc/Wangyuyan.prefab", new Vector3(-18.0f, 5.5f, 27.2f));
+            var meng = EnsureNpc(npcRoot, "孟星魂", "Assets/BuildSource/ModelCharacters/BattleNpc/Linghuchong.prefab", new Vector3(-13.6f, 5.5f, 30.8f));
+            var shuang = EnsureNpc(npcRoot, "双儿", "Assets/BuildSource/ModelCharacters/BattleNpc/Chengying.prefab", new Vector3(-27.5f, 5.5f, 29.0f));
+            var azhu = EnsureNpc(npcRoot, "阿朱", "Assets/BuildSource/ModelCharacters/BattleNpc/Huangrong.prefab", new Vector3(-8.8f, 5.5f, 28.8f));
+            var abi = EnsureNpc(npcRoot, "阿碧", "Assets/BuildSource/ModelCharacters/BattleNpc/Chengying.prefab", new Vector3(-24.8f, 5.5f, 19.2f));
+            var shijian = EnsureNpc(npcRoot, "侍剑", "Assets/BuildSource/ModelCharacters/BattleNpc/Chengying.prefab", new Vector3(-8.6f, 5.5f, 40.5f));
+            var chest = EnsureChest(npcRoot, new Vector3(-30.0f, 5.1f, 27.4f));
+
+            EnsureInteractiveEvent(triggers, "jshyl_murong_opening", "5200", murong, murong.transform.position);
+            EnsureInteractiveEvent(triggers, "jshyl_shuanger_rest", "5201", shuang, shuang.transform.position);
+            EnsureInteractiveEvent(triggers, "jshyl_yanzi_treasure", "5202", chest, chest.transform.position);
+            EnsureInteractiveEvent(triggers, "jshyl_azhu_hint", "5203", azhu, azhu.transform.position);
+            EnsureInteractiveEvent(triggers, "jshyl_abi_hint", "5204", abi, abi.transform.position);
+            EnsureInteractiveEvent(triggers, "jshyl_shijian_training", "5205", shijian, shijian.transform.position);
+
+            UnityEditor.AI.NavMeshBuilder.BuildNavMesh();
+
+            EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
+            EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
+
+            Debug.Log($"[Jyx2ModSmokeTest] Configured Hongyan opening scene in '{scenePath}'.");
+            EditorApplication.Exit(0);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError("[Jyx2ModSmokeTest] Failed to configure Hongyan opening scene.");
+            Debug.LogError(ex.ToString());
+            EditorApplication.Exit(1);
+        }
+    }
+
+    public static void ConfigureJshylWorldMapOpeningSpawnFromCommandLine()
+    {
+        try
+        {
+            var modId = GetArgValue("-modId") ?? "jshyl";
+            var scenePath = $"Assets/Mods/{modId}/Maps/GameMaps/1000_daditu.unity";
+            EditorSceneManager.OpenScene(scenePath);
+
+            var level = GameObject.Find("Level") ?? new GameObject("Level");
+            var triggers = EnsureChild(level.transform, "Triggers");
+            var spawn = triggers.Find("燕子坞")?.gameObject ?? new GameObject("燕子坞");
+            spawn.transform.SetParent(triggers, false);
+
+            var yanziwu = triggers.Find("燕子坞") ??
+                          UnityEngine.Object.FindObjectsOfType<MapTeleportor>()
+                              .FirstOrDefault(t => t.gameObject.name == "燕子坞")?.transform;
+            if (yanziwu != null)
+            {
+                spawn.transform.position = yanziwu.position;
+                spawn.transform.rotation = yanziwu.rotation;
+            }
+            else
+            {
+                var player = RoleHelper.FindPlayer();
+                spawn.transform.position = player != null ? player.transform.position : Vector3.zero;
+                spawn.transform.rotation = Quaternion.identity;
+            }
+
+            EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
+            EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
+
+            Debug.Log($"[Jyx2ModSmokeTest] Configured world-map spawn point '燕子坞' in '{scenePath}'.");
+            EditorApplication.Exit(0);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError("[Jyx2ModSmokeTest] Failed to configure world-map opening spawn.");
+            Debug.LogError(ex.ToString());
+            EditorApplication.Exit(1);
+        }
+    }
+
+    private static Transform EnsureChild(Transform parent, string name)
+    {
+        var child = parent.Find(name);
+        if (child != null)
+        {
+            return child;
+        }
+
+        var go = new GameObject(name);
+        go.transform.SetParent(parent, false);
+        return go.transform;
+    }
+
+    private static void EnsureStartTrigger(Transform triggers)
+    {
+        var start = triggers.Find("0")?.gameObject ?? new GameObject("0");
+        start.transform.SetParent(triggers, false);
+        start.transform.position = new Vector3(-18.0f, 5.5f, 30.2f);
+        start.transform.localScale = Vector3.one;
+
+        var collider = start.GetComponent<BoxCollider>();
+        if (collider == null)
+        {
+            collider = start.AddComponent<BoxCollider>();
+        }
+        collider.size = new Vector3(1.5f, 1.0f, 1.5f);
+        collider.center = Vector3.zero;
+    }
+
+    private static void OpenYanziwuDoors()
+    {
+        foreach (var transform in UnityEngine.Object.FindObjectsOfType<Transform>(true))
+        {
+            if (transform.name.IndexOf("Door", StringComparison.OrdinalIgnoreCase) < 0 &&
+                transform.name.IndexOf("门", StringComparison.Ordinal) < 0)
+            {
+                continue;
+            }
+
+            foreach (var collider in transform.GetComponentsInChildren<Collider>(true))
+            {
+                collider.enabled = false;
+            }
+
+            foreach (var obstacle in transform.GetComponentsInChildren<NavMeshObstacle>(true))
+            {
+                obstacle.enabled = false;
+            }
+        }
+    }
+
+    private static void RebuildHongyanOpeningWing(Transform dynamicRoot)
+    {
+        var oldWing = dynamicRoot.Find("jshyl_HongyanOpeningWing");
+        if (oldWing != null)
+        {
+            UnityEngine.Object.DestroyImmediate(oldWing.gameObject);
+        }
+
+        var wing = new GameObject("jshyl_HongyanOpeningWing");
+        wing.transform.SetParent(dynamicRoot, false);
+        var floorMaterial = FindSceneMaterial("Wood") ?? FindSceneMaterial("Floor");
+        var wallMaterial = FindSceneMaterial("Wall") ?? floorMaterial;
+
+        CreateRoomFloor(wing.transform, "main_hall_floor", new Vector3(-18f, 5.02f, 29f), new Vector3(12f, 0.2f, 8f), floorMaterial);
+        CreateRoomFloor(wing.transform, "shuanger_room_floor", new Vector3(-28f, 5.02f, 28f), new Vector3(8f, 0.2f, 7f), floorMaterial);
+        CreateRoomFloor(wing.transform, "azhu_room_floor", new Vector3(-8.5f, 5.02f, 28f), new Vector3(8f, 0.2f, 7f), floorMaterial);
+        CreateRoomFloor(wing.transform, "abi_room_floor", new Vector3(-24f, 5.02f, 19f), new Vector3(8f, 0.2f, 7f), floorMaterial);
+        CreateRoomFloor(wing.transform, "shuige_floor", new Vector3(-9f, 5.02f, 40f), new Vector3(9f, 0.2f, 8f), floorMaterial);
+        CreateRoomFloor(wing.transform, "front_walkway", new Vector3(-13.5f, 5.02f, 47f), new Vector3(5f, 0.2f, 18f), floorMaterial);
+
+        CreateLowWall(wing.transform, "main_back_wall", new Vector3(-18f, 5.7f, 33f), new Vector3(12f, 1.4f, 0.25f), wallMaterial);
+        CreateLowWall(wing.transform, "shuanger_back_wall", new Vector3(-28f, 5.7f, 31.5f), new Vector3(8f, 1.4f, 0.25f), wallMaterial);
+        CreateLowWall(wing.transform, "azhu_back_wall", new Vector3(-8.5f, 5.7f, 31.5f), new Vector3(8f, 1.4f, 0.25f), wallMaterial);
+        CreateLowWall(wing.transform, "abi_back_wall", new Vector3(-24f, 5.7f, 15.5f), new Vector3(8f, 1.4f, 0.25f), wallMaterial);
+        CreateLowWall(wing.transform, "shuige_back_wall", new Vector3(-9f, 5.7f, 44f), new Vector3(9f, 1.4f, 0.25f), wallMaterial);
+        CreateLowWall(wing.transform, "left_partition", new Vector3(-23f, 5.7f, 28.2f), new Vector3(0.25f, 1.4f, 5.5f), wallMaterial);
+        CreateLowWall(wing.transform, "right_partition", new Vector3(-13f, 5.7f, 28.2f), new Vector3(0.25f, 1.4f, 5.5f), wallMaterial);
+
+        var leave = UnityEngine.Object.FindObjectsOfType<MapTeleportor>(true)
+            .FirstOrDefault(t => t.gameObject.name == "Leave");
+        if (leave != null)
+        {
+            leave.transform.position = new Vector3(-13.5f, 5.25f, 55.0f);
+            leave.transform.localScale = new Vector3(4f, 1f, 3f);
+            var collider = leave.GetComponent<BoxCollider>();
+            if (collider != null)
+            {
+                collider.enabled = true;
+                collider.isTrigger = false;
+            }
+        }
+    }
+
+    private static Material FindSceneMaterial(string namePart)
+    {
+        return UnityEngine.Object.FindObjectsOfType<Renderer>(true)
+            .SelectMany(r => r.sharedMaterials)
+            .FirstOrDefault(m => m != null && m.name.IndexOf(namePart, StringComparison.OrdinalIgnoreCase) >= 0);
+    }
+
+    private static GameObject CreateRoomFloor(Transform parent, string name, Vector3 position, Vector3 scale, Material material)
+    {
+        var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        go.name = name;
+        go.transform.SetParent(parent, false);
+        go.transform.position = position;
+        go.transform.localScale = scale;
+        ApplyMaterial(go, material);
+        GameObjectUtility.SetStaticEditorFlags(go, StaticEditorFlags.BatchingStatic | StaticEditorFlags.NavigationStatic);
+        return go;
+    }
+
+    private static GameObject CreateLowWall(Transform parent, string name, Vector3 position, Vector3 scale, Material material)
+    {
+        var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        go.name = name;
+        go.transform.SetParent(parent, false);
+        go.transform.position = position;
+        go.transform.localScale = scale;
+        ApplyMaterial(go, material);
+        GameObjectUtility.SetStaticEditorFlags(go, StaticEditorFlags.BatchingStatic);
+        return go;
+    }
+
+    private static void ApplyMaterial(GameObject go, Material material)
+    {
+        if (material == null)
+        {
+            return;
+        }
+
+        var renderer = go.GetComponent<Renderer>();
+        if (renderer != null)
+        {
+            renderer.sharedMaterial = material;
+        }
+    }
+
+    private static GameObject EnsureNpc(Transform parent, string name, string prefabPath, Vector3 position)
+    {
+        var existing = parent.Find(name);
+        if (existing != null)
+        {
+            existing.position = position;
+            existing.rotation = Quaternion.Euler(0, 180, 0);
+            existing.localScale = Vector3.one;
+            return existing.gameObject;
+        }
+
+        var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+        if (prefab == null)
+        {
+            throw new Exception($"Cannot load NPC prefab '{prefabPath}' for '{name}'.");
+        }
+
+        var npc = (GameObject)PrefabUtility.InstantiatePrefab(prefab, parent);
+        npc.name = name;
+        npc.transform.position = position;
+        npc.transform.rotation = Quaternion.Euler(0, 180, 0);
+        npc.transform.localScale = Vector3.one;
+        return npc;
+    }
+
+    private static GameObject EnsureChest(Transform parent, Vector3 position)
+    {
+        var existing = parent.Find("三万两宝箱");
+        if (existing != null)
+        {
+            existing.position = position;
+            return existing.gameObject;
+        }
+
+        var chest = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        chest.name = "三万两宝箱";
+        chest.transform.SetParent(parent, false);
+        chest.transform.position = position;
+        chest.transform.localScale = new Vector3(0.9f, 0.55f, 0.7f);
+        return chest;
+    }
+
+    private static void EnsureInteractiveEvent(Transform triggers, string name, string eventId, GameObject target, Vector3 position)
+    {
+        var go = triggers.Find(name)?.gameObject ?? new GameObject(name);
+        go.transform.SetParent(triggers, false);
+        go.transform.position = position;
+        go.transform.localScale = Vector3.one;
+
+        var collider = go.GetComponent<BoxCollider>();
+        if (collider == null)
+        {
+            collider = go.AddComponent<BoxCollider>();
+        }
+        collider.size = new Vector3(2.0f, 2.0f, 2.0f);
+        collider.center = new Vector3(0, 1.0f, 0);
+
+        var evt = go.GetComponent<GameEvent>();
+        if (evt == null)
+        {
+            evt = go.AddComponent<GameEvent>();
+        }
+        evt.m_EventTargets = new[] { target };
+        evt.m_InteractiveEventId = eventId;
+        evt.m_UseItemEventId = "-1";
+        evt.m_EnterEventId = "-1";
     }
 
     public static void AlignJshylKunlunAqingFromCommandLine()
@@ -728,7 +1044,7 @@ public static class Jyx2ModSmokeTest
         return mod;
     }
 
-    private static void ValidateJyx2BaselineStartScene(string modId)
+    private static void ValidateJshylStartScene(string modId)
     {
         var luaPath = $"Assets/Mods/{modId}/Configs/Lua/MapConfig.lua";
         if (!File.Exists(luaPath))
@@ -737,16 +1053,16 @@ public static class Jyx2ModSmokeTest
         }
 
         var mapConfig = File.ReadAllText(luaPath);
-        var expectedEntry = $"{{0,[[小虾米居]],[[{Jyx2BaselineStartScene}]]";
+        var expectedEntry = $"{{0,[[燕子坞]],[[{JshylStartScene}]]";
         if (!mapConfig.Contains(expectedEntry))
         {
-            throw new Exception($"MapConfig.lua must use the JYX2 baseline start scene '{Jyx2BaselineStartScene}' for map 0.");
+            throw new Exception($"MapConfig.lua must use the Hongyan opening scene '{JshylStartScene}' for map 0.");
         }
 
-        var scenePath = $"Assets/Mods/{modId}/Maps/GameMaps/{Jyx2BaselineStartScene}.unity";
+        var scenePath = $"Assets/Mods/{modId}/Maps/GameMaps/{JshylStartScene}.unity";
         if (!File.Exists(scenePath))
         {
-            throw new Exception($"Missing JYX2 baseline start scene copy: {scenePath}");
+            throw new Exception($"Missing Hongyan opening scene copy: {scenePath}");
         }
 
         var bigMapPath = $"Assets/Mods/{modId}/Maps/GameMaps/1000_daditu.unity";
@@ -779,7 +1095,111 @@ public static class Jyx2ModSmokeTest
             throw new Exception($"Missing copied skill display asset for A-Qing's opening battle skill: {yuenvSkillPath}");
         }
 
-        Debug.Log($"[Jyx2ModSmokeTest] JYX2 baseline start scene is configured: {Jyx2BaselineStartScene}");
+        Debug.Log($"[Jyx2ModSmokeTest] Hongyan opening start scene is configured: {JshylStartScene}");
+    }
+
+    private static void ValidateHongyanOpeningAssets(string modId)
+    {
+        var characterConfig = File.ReadAllText($"Assets/Mods/{modId}/Configs/Lua/CharacterConfig.lua");
+        foreach (var roleName in new[] { "孟星魂", "慕容秋荻", "双儿", "阿朱", "阿碧", "侍剑", "十二金钗一", "十二金钗十二" })
+        {
+            if (!characterConfig.Contains($"[[{roleName}]]"))
+            {
+                throw new Exception($"CharacterConfig.lua is missing Hongyan opening role: {roleName}");
+            }
+
+            var modelPath = $"Assets/Mods/{modId}/Models/{roleName}.asset";
+            if (!File.Exists(modelPath))
+            {
+                throw new Exception($"Missing Hongyan opening model alias: {modelPath}");
+            }
+        }
+
+        var battleConfig = File.ReadAllText($"Assets/Mods/{modId}/Configs/Lua/BattleConfig.lua");
+        if (!battleConfig.Contains("{145,[[燕子坞十二金钗演武]]"))
+        {
+            throw new Exception("BattleConfig.lua is missing the YanZiWu training battle 145.");
+        }
+
+        foreach (var luaId in new[] { "5200", "5201", "5202", "5203", "5204", "5205" })
+        {
+            var luaPath = $"Assets/Mods/{modId}/Lua/{luaId}.lua";
+            if (!File.Exists(luaPath))
+            {
+                throw new Exception($"Missing Hongyan opening Lua event: {luaPath}");
+            }
+        }
+
+        var mapConfig = File.ReadAllText($"Assets/Mods/{modId}/Configs/Lua/MapConfig.lua");
+        if (mapConfig.Contains("{70,[[小虾米居]],[[70_xiaoxiamiju]],[[Leave:1000]],-1,19,0,[[START:0]]}"))
+        {
+            throw new Exception("Xiaoxiamiju is still tagged as the start scene.");
+        }
+
+        var scenePath = $"Assets/Mods/{modId}/Maps/GameMaps/{JshylStartScene}.unity";
+        EditorSceneManager.OpenScene(scenePath);
+
+        if (GameObject.Find("Level/Dynamic/jshyl_HongyanOpeningWing") == null)
+        {
+            throw new Exception("Hongyan opening scene is missing the expanded opening wing.");
+        }
+
+        var openingObjects = new List<GameObject>();
+        foreach (var requiredNpc in new[] { "慕容秋荻", "孟星魂", "双儿", "阿朱", "阿碧", "侍剑", "三万两宝箱" })
+        {
+            var go = GameObject.Find($"Level/NPC/{requiredNpc}") ?? GameObject.Find(requiredNpc);
+            if (go == null)
+            {
+                throw new Exception($"Hongyan opening scene is missing object: {requiredNpc}");
+            }
+
+            openingObjects.Add(go);
+        }
+
+        for (var i = 0; i < openingObjects.Count; i++)
+        {
+            for (var j = i + 1; j < openingObjects.Count; j++)
+            {
+                if (Vector3.Distance(openingObjects[i].transform.position, openingObjects[j].transform.position) < 2.0f)
+                {
+                    throw new Exception($"Hongyan opening objects are too clustered: {openingObjects[i].name}, {openingObjects[j].name}");
+                }
+            }
+        }
+
+        foreach (var requiredEvent in new[] { "5200", "5201", "5202", "5203", "5204", "5205" })
+        {
+            var evt = UnityEngine.Object.FindObjectsOfType<GameEvent>()
+                .FirstOrDefault(e => e.m_InteractiveEventId == requiredEvent);
+            if (evt == null)
+            {
+                throw new Exception($"Hongyan opening scene is missing interactive event {requiredEvent}.");
+            }
+        }
+
+        var leave = UnityEngine.Object.FindObjectsOfType<MapTeleportor>(true)
+            .FirstOrDefault(t => t.gameObject.name == "Leave");
+        if (leave == null || Vector3.Distance(leave.transform.position, new Vector3(-13.5f, 5.25f, 55.0f)) > 2.0f)
+        {
+            throw new Exception("Hongyan opening scene Leave teleportor was not moved to the expanded open exit.");
+        }
+
+        var start = GameObject.Find("Level/Triggers/0");
+        if (start == null ||
+            !NavMesh.SamplePosition(start.transform.position, out var startHit, 3f, NavMesh.AllAreas) ||
+            !NavMesh.SamplePosition(leave.transform.position, out var leaveHit, 3f, NavMesh.AllAreas))
+        {
+            throw new Exception("Hongyan opening start or exit is not on the baked NavMesh.");
+        }
+
+        var navPath = new NavMeshPath();
+        if (!NavMesh.CalculatePath(startHit.position, leaveHit.position, NavMesh.AllAreas, navPath) ||
+            navPath.status != NavMeshPathStatus.PathComplete)
+        {
+            throw new Exception("Hongyan opening start cannot reach the expanded open exit on NavMesh.");
+        }
+
+        Debug.Log("[Jyx2ModSmokeTest] Hongyan opening assets passed: YanZiWu start, NPCs, treasure, rest, and training events.");
     }
 
     private static void ValidateKunlunHongyanStoryAssets(string modId)
@@ -957,7 +1377,7 @@ public static class Jyx2ModSmokeTest
     private static void ValidateStartSceneAsset(string modId)
     {
         ValidateEditorModIsDiscoverable(modId);
-        var scenePath = $"Assets/Mods/{modId}/Maps/GameMaps/{Jyx2BaselineStartScene}.unity";
+        var scenePath = $"Assets/Mods/{modId}/Maps/GameMaps/{JshylStartScene}.unity";
         EditorSceneManager.OpenScene(scenePath);
         ValidateLoadedScenePlayer("0");
         ValidateSceneEventLuaFiles(modId);
