@@ -80,6 +80,7 @@ public static class Jyx2ModSmokeTest
             ValidateSceneEventLuaFilesForScene(modId, $"Assets/Mods/{modId}/Maps/GameMaps/67_shandong.unity");
             ValidateSceneEventLuaFilesForScene(modId, $"Assets/Mods/{modId}/Maps/GameMaps/04_kunlunxianjing.unity");
             ValidateJshylLuaUsesExposedFlagApi(modId);
+            ValidateHongyanMaxedPlayerOpening(modId);
             ValidateHongyanOpeningAssets(modId);
             ValidateKunlunHongyanStoryAssets(modId);
             ValidateJshylBattleSkillDisplayAssets(modId);
@@ -141,7 +142,6 @@ public static class Jyx2ModSmokeTest
             var level = GameObject.Find("Level") ?? new GameObject("Level");
             var triggers = EnsureChild(level.transform, "Triggers");
             var npcRoot = EnsureChild(level.transform, "NPC");
-            var dynamicRoot = EnsureChild(level.transform, "Dynamic");
 
             foreach (var evt in UnityEngine.Object.FindObjectsOfType<GameEvent>())
             {
@@ -155,15 +155,18 @@ public static class Jyx2ModSmokeTest
 
             EnsureStartTrigger(triggers);
             OpenYanziwuDoors();
-            RebuildHongyanOpeningWing(dynamicRoot);
-
+            var binvPrefab = "Assets/BuildSource/ModelCharacters/BattleNpc/OuyangkeBinv.prefab";
             var murong = EnsureNpc(npcRoot, "慕容秋荻", "Assets/BuildSource/ModelCharacters/BattleNpc/Wangyuyan.prefab", new Vector3(-18.0f, 5.5f, 27.2f));
             var meng = EnsureNpc(npcRoot, "孟星魂", "Assets/BuildSource/ModelCharacters/BattleNpc/Linghuchong.prefab", new Vector3(-13.6f, 5.5f, 30.8f));
-            var shuang = EnsureNpc(npcRoot, "双儿", "Assets/BuildSource/ModelCharacters/BattleNpc/Chengying.prefab", new Vector3(-27.5f, 5.5f, 29.0f));
-            var azhu = EnsureNpc(npcRoot, "阿朱", "Assets/BuildSource/ModelCharacters/BattleNpc/Huangrong.prefab", new Vector3(-8.8f, 5.5f, 28.8f));
-            var abi = EnsureNpc(npcRoot, "阿碧", "Assets/BuildSource/ModelCharacters/BattleNpc/Chengying.prefab", new Vector3(-24.8f, 5.5f, 19.2f));
+            var shuang = EnsureNpc(npcRoot, "双儿", binvPrefab, new Vector3(-27.5f, 5.5f, 29.0f));
+            var azhu = EnsureNpc(npcRoot, "阿朱", binvPrefab, new Vector3(-8.8f, 5.5f, 28.8f));
+            var abi = EnsureNpc(npcRoot, "阿碧", binvPrefab, new Vector3(-24.8f, 5.5f, 19.2f));
             var shijian = EnsureNpc(npcRoot, "侍剑", "Assets/BuildSource/ModelCharacters/BattleNpc/Chengying.prefab", new Vector3(-8.6f, 5.5f, 40.5f));
-            var chest = EnsureChest(npcRoot, new Vector3(-30.0f, 5.1f, 27.4f));
+            var chest = EnsureChest(npcRoot, FindExistingPosition(npcRoot, "三万两宝箱", new Vector3(-30.0f, 5.1f, 27.4f)));
+
+            LiftOuyangkeMaidNpc(shuang);
+            LiftOuyangkeMaidNpc(azhu);
+            LiftOuyangkeMaidNpc(abi);
 
             EnsureInteractiveEvent(triggers, "jshyl_murong_opening", "5200", murong, murong.transform.position);
             EnsureInteractiveEvent(triggers, "jshyl_shuanger_rest", "5201", shuang, shuang.transform.position);
@@ -371,15 +374,23 @@ public static class Jyx2ModSmokeTest
 
     private static GameObject EnsureNpc(Transform parent, string name, string prefabPath, Vector3 position)
     {
-        var existing = parent.Find(name);
+        var existing = parent.Find(name) ?? GameObject.Find(name)?.transform;
         if (existing != null)
         {
-            existing.position = position;
-            existing.rotation = Quaternion.Euler(0, 180, 0);
-            existing.localScale = Vector3.one;
-            return existing.gameObject;
+            position = existing.position;
+            var rotation = existing.rotation;
+            var scale = existing.localScale;
+            var siblingIndex = existing.GetSiblingIndex();
+            UnityEngine.Object.DestroyImmediate(existing.gameObject);
+            return InstantiateNamedPrefab(parent, name, prefabPath, position, rotation, scale, siblingIndex);
         }
 
+        return InstantiateNamedPrefab(parent, name, prefabPath, position, Quaternion.Euler(0, 180, 0), Vector3.one, -1);
+    }
+
+    private static GameObject InstantiateNamedPrefab(Transform parent, string name, string prefabPath, Vector3 position,
+        Quaternion rotation, Vector3 scale, int siblingIndex)
+    {
         var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
         if (prefab == null)
         {
@@ -389,9 +400,29 @@ public static class Jyx2ModSmokeTest
         var npc = (GameObject)PrefabUtility.InstantiatePrefab(prefab, parent);
         npc.name = name;
         npc.transform.position = position;
-        npc.transform.rotation = Quaternion.Euler(0, 180, 0);
-        npc.transform.localScale = Vector3.one;
+        npc.transform.rotation = rotation;
+        npc.transform.localScale = scale == Vector3.zero ? Vector3.one : scale;
+        if (siblingIndex >= 0)
+        {
+            npc.transform.SetSiblingIndex(siblingIndex);
+        }
         return npc;
+    }
+
+    private static Vector3 FindExistingPosition(Transform parent, string name, Vector3 fallback)
+    {
+        var existing = parent.Find(name) ?? GameObject.Find(name)?.transform;
+        return existing != null ? existing.position : fallback;
+    }
+
+    private static void LiftOuyangkeMaidNpc(GameObject npc)
+    {
+        var position = npc.transform.position;
+        if (position.y < 6.45f)
+        {
+            npc.transform.position = new Vector3(position.x, 6.5f, position.z);
+        }
+        npc.transform.localScale = Vector3.one;
     }
 
     private static GameObject EnsureChest(Transform parent, Vector3 position)
@@ -1139,11 +1170,6 @@ public static class Jyx2ModSmokeTest
         var scenePath = $"Assets/Mods/{modId}/Maps/GameMaps/{JshylStartScene}.unity";
         EditorSceneManager.OpenScene(scenePath);
 
-        if (GameObject.Find("Level/Dynamic/jshyl_HongyanOpeningWing") == null)
-        {
-            throw new Exception("Hongyan opening scene is missing the expanded opening wing.");
-        }
-
         var openingObjects = new List<GameObject>();
         foreach (var requiredNpc in new[] { "慕容秋荻", "孟星魂", "双儿", "阿朱", "阿碧", "侍剑", "三万两宝箱" })
         {
@@ -1167,21 +1193,46 @@ public static class Jyx2ModSmokeTest
             }
         }
 
-        foreach (var requiredEvent in new[] { "5200", "5201", "5202", "5203", "5204", "5205" })
+        var expectedEvents = new Dictionary<string, string>
+        {
+            { "5200", "慕容秋荻" },
+            { "5201", "双儿" },
+            { "5202", "三万两宝箱" },
+            { "5203", "阿朱" },
+            { "5204", "阿碧" },
+            { "5205", "侍剑" },
+        };
+
+        foreach (var pair in expectedEvents)
         {
             var evt = UnityEngine.Object.FindObjectsOfType<GameEvent>()
-                .FirstOrDefault(e => e.m_InteractiveEventId == requiredEvent);
+                .FirstOrDefault(e => e.m_InteractiveEventId == pair.Key);
             if (evt == null)
             {
-                throw new Exception($"Hongyan opening scene is missing interactive event {requiredEvent}.");
+                throw new Exception($"Hongyan opening scene is missing interactive event {pair.Key}.");
+            }
+
+            var target = GameObject.Find($"Level/NPC/{pair.Value}") ?? GameObject.Find(pair.Value);
+            if (target == null || Vector3.Distance(evt.transform.position, target.transform.position) > 0.75f)
+            {
+                throw new Exception($"Hongyan opening event {pair.Key} is not aligned to {pair.Value}.");
+            }
+        }
+
+        foreach (var maidName in new[] { "双儿", "阿朱", "阿碧" })
+        {
+            var maid = GameObject.Find($"Level/NPC/{maidName}") ?? GameObject.Find(maidName);
+            if (maid == null || maid.transform.position.y < 6.45f)
+            {
+                throw new Exception($"Hongyan opening maid NPC {maidName} is too low for the OuyangkeBinv prefab.");
             }
         }
 
         var leave = UnityEngine.Object.FindObjectsOfType<MapTeleportor>(true)
             .FirstOrDefault(t => t.gameObject.name == "Leave");
-        if (leave == null || Vector3.Distance(leave.transform.position, new Vector3(-13.5f, 5.25f, 55.0f)) > 2.0f)
+        if (leave == null)
         {
-            throw new Exception("Hongyan opening scene Leave teleportor was not moved to the expanded open exit.");
+            throw new Exception("Hongyan opening scene is missing Leave teleportor.");
         }
 
         var start = GameObject.Find("Level/Triggers/0");
@@ -1200,6 +1251,47 @@ public static class Jyx2ModSmokeTest
         }
 
         Debug.Log("[Jyx2ModSmokeTest] Hongyan opening assets passed: YanZiWu start, NPCs, treasure, rest, and training events.");
+    }
+
+    private static void ValidateHongyanMaxedPlayerOpening(string modId)
+    {
+        var characterConfig = File.ReadAllText($"Assets/Mods/{modId}/Configs/Lua/CharacterConfig.lua");
+        var playerMatch = Regex.Match(characterConfig, @"^\{0,0,\d+,\[\[小虾米\]\].*$", RegexOptions.Multiline);
+        if (!playerMatch.Success)
+        {
+            throw new Exception("Cannot find player row in CharacterConfig.lua.");
+        }
+
+        var playerRow = playerMatch.Value;
+        foreach (var required in new[] { "[[小虾米]],0,30,999999,999,", ",2,999,", "{25,900}", "{30,900}", "{61,900}", "{87,900}", "{92,900}", "{205,900}" })
+        {
+            if (!playerRow.Contains(required))
+            {
+                throw new Exception($"Maxed opening player row is missing expected value/skill: {required}");
+            }
+        }
+
+        var settingsConfig = File.ReadAllText($"Assets/Mods/{modId}/Configs/Lua/SettingsConfig.lua");
+        foreach (var required in new[] { "[[MAX_ROLE_ATTACK]],[[999]]", "[[MAX_ROLE_DEFENCE]],[[999]]", "[[MAX_ROLE_QINGGONG]],[[999]]", "[[MAX_ROLE_ATTRIBUTE]],[[999]]" })
+        {
+            if (!settingsConfig.Contains(required))
+            {
+                throw new Exception($"SettingsConfig.lua is missing boosted jshyl limit: {required}");
+            }
+        }
+
+        var skillConfig = File.ReadAllText($"Assets/Mods/{modId}/Configs/Lua/SkillConfig.lua");
+        if (!skillConfig.Contains("{205,[[独孤九剑]]"))
+        {
+            throw new Exception("SkillConfig.lua is missing standalone skill 205 独孤九剑.");
+        }
+
+        if (!File.Exists($"Assets/Mods/{modId}/Skills/独孤九剑.asset"))
+        {
+            throw new Exception("Skill display asset for 独孤九剑 is missing.");
+        }
+
+        Debug.Log("[Jyx2ModSmokeTest] Hongyan maxed player opening config passed.");
     }
 
     private static void ValidateKunlunHongyanStoryAssets(string modId)

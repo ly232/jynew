@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: "阿朱"
   m_EditorClassIdentifier: 
   View:
-    m_AssetGUID: 6c5e0db599ddbae4a9131a44e36f0342
+    m_AssetGUID: 01718cd6141eba74dbd25951c5a0f317
     m_SubObjectName: 
     m_SubObjectType: 
     m_EditorAssetChanged: 0
-  m_View: {fileID: 7711393718927197123, guid: 6c5e0db599ddbae4a9131a44e36f0342, type: 3}
+  m_View: {fileID: 3602514880852751471, guid: 01718cd6141eba74dbd25951c5a0f317, type: 3}
   m_SwordWeapon:
     id: 0
   m_KnifeWeapon:
@@ -30,19 +30,18 @@ MonoBehaviour:
       type: {class: SwordPart, ns: Jyx2, asm: Assembly-CSharp}
       data:
         m_Id: 1
-        m_BindBone: mixamorig:RightHand
-        m_PartView: {fileID: 1225507566611884, guid: e4a8b328034504848b4373bbdaaefd04,
+        m_BindBone: QuickRigCharacter1_RightHand
+        m_PartView: {fileID: 1216378884712654, guid: 536d2078b40d14b489a9adc6f0819951,
           type: 3}
-        m_OffsetPosition: {x: 0.9, y: 4.3, z: 0.8}
-        m_OffsetRotation: {x: 327.83002, y: 252.775, z: 314.83002}
-        m_OffsetScale: {x: 100, y: 100, z: 100}
+        m_OffsetPosition: {x: 0.0805, y: 0.0404, z: -0.0449}
+        m_OffsetRotation: {x: 296.91, y: 180, z: 199.4}
+        m_OffsetScale: {x: 1, y: 1, z: 1}
     00000001:
       type: {class: KnifePart, ns: Jyx2, asm: Assembly-CSharp}
       data:
         m_Id: 2
-        m_BindBone: mixamorig:RightHand
-        m_PartView: {fileID: 1991866320728406, guid: 9a87103d420e21d48afd6c71f13b21c8,
-          type: 3}
+        m_BindBone: QuickRigCharacter1_RightHand
+        m_PartView: {fileID: 0}
         m_OffsetPosition: {x: 0, y: 0, z: 0}
         m_OffsetRotation: {x: 0, y: 0, z: 0}
         m_OffsetScale: {x: 1, y: 1, z: 1}
@@ -50,9 +49,8 @@ MonoBehaviour:
       type: {class: SpearPart, ns: Jyx2, asm: Assembly-CSharp}
       data:
         m_Id: 3
-        m_BindBone: mixamorig:RightHand
-        m_PartView: {fileID: 1225507566611884, guid: e4a8b328034504848b4373bbdaaefd04,
-          type: 3}
+        m_BindBone: QuickRigCharacter1_RightHand
+        m_PartView: {fileID: 0}
         m_OffsetPosition: {x: 0, y: 0, z: 0}
         m_OffsetRotation: {x: 0, y: 0, z: 0}
         m_OffsetScale: {x: 1, y: 1, z: 1}

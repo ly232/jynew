@@ -198,6 +198,8 @@ public partial class GameMainMenu : Jyx2_UIBase
 	}
 	public void OnCreateRoleYesClick()
 	{
+		ApplyJshylOpeningRoleBoostForNewGame();
+
 		//reset mode, fix bug or quit game and new game again on main menu goes straight to property panel
 		m_panelType = PanelType.Home;
 		this.homeBtnAndTxtPanel_RectTransform.gameObject.SetActive(true);
@@ -267,6 +269,67 @@ public partial class GameMainMenu : Jyx2_UIBase
 		}
 
 		m_randomProperty.RefreshProperty();
+	}
+
+	private static void ApplyJshylOpeningRoleBoostForNewGame()
+	{
+		if (RuntimeEnvSetup.CurrentModConfig == null ||
+		    !string.Equals(RuntimeEnvSetup.CurrentModConfig.ModId, "jshyl", StringComparison.OrdinalIgnoreCase))
+		{
+			return;
+		}
+
+		var role = GameRuntimeData.Instance?.Player;
+		if (role == null)
+		{
+			return;
+		}
+
+		role.Level = 30;
+		role.Exp = 999999;
+		role.MaxHp = 999;
+		role.Hp = 999;
+		role.MaxMp = 999;
+		role.Mp = 999;
+		role.MpType = 2;
+		role.Tili = GameConst.MAX_ROLE_TILI;
+		role.Attack = 999;
+		role.Qinggong = 999;
+		role.Defence = 999;
+		role.Heal = 999;
+		role.UsePoison = 999;
+		role.DePoison = 999;
+		role.AntiPoison = 999;
+		role.Quanzhang = 999;
+		role.Yujian = 999;
+		role.Shuadao = 999;
+		role.Qimen = 999;
+		role.Anqi = 999;
+		role.Wuxuechangshi = 999;
+		role.Pinde = 999;
+		role.AttackPoison = 999;
+		role.Zuoyouhubo = 1;
+		role.IQ = 100;
+		role.HpInc = 100;
+
+		foreach (var skillId in new[] { 1, 25, 29, 30, 57, 58, 61, 87, 92, 205 })
+		{
+			EnsureRoleSkill(role, skillId, 900);
+		}
+	}
+
+	private static void EnsureRoleSkill(RoleInstance role, int skillId, int level)
+	{
+		foreach (var skill in role.Wugongs)
+		{
+			if (skill.Key == skillId)
+			{
+				skill.Level = level;
+				return;
+			}
+		}
+
+		role.Wugongs.Add(new SkillInstance(skillId) { Level = level });
 	}
 
 	private void GenerateRamdomPro(RoleInstance role, int i, bool cheating)
