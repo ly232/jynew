@@ -1,61 +1,77 @@
 # 200_ASSET_PIPELINE.md
 
-# Asset Pipeline
-
 ## Goal
 
-Support missing content through a controlled asset request system.
+Manage existing and generated assets under the MOD packaging model.
 
-## Asset Categories
+## Reuse First
+
+Prefer assets already in base assets:
 
 ```text
-Portrait
-Avatar
-NPCPrefab
-BattleBackground
-MapIcon
-ItemIcon
-CutsceneIllustration
-VoicePlaceholder
+Assets/BuildSource/
 ```
 
-## Asset Resolution Order
+This creates near-zero package-size cost.
 
-1. Existing JYNew asset
-2. Existing reusable similar asset
-3. Placeholder asset
-4. AI-generated asset request
-5. Human-created final asset
+## New Assets
 
-## Asset Request Schema
+Place MOD-specific assets under:
+
+```text
+Assets/Mods/qingqingzijin/BuildSource/
+Assets/Mods/qingqingzijin/ModAssets/
+Assets/Mods/qingqingzijin/Skills/
+```
+
+## Portraits
+
+Use:
+
+```text
+Assets/Mods/qingqingzijin/BuildSource/heads/
+```
+
+Format:
+
+```text
+png
+```
+
+## Music / Sound
+
+Use:
+
+```text
+Assets/Mods/qingqingzijin/BuildSource/Musics/
+Assets/Mods/qingqingzijin/BuildSource/sound/
+```
+
+Music should use mp3 container format when following manual conventions.
+
+## NPC Models
+
+Use:
+
+```text
+Assets/Mods/qingqingzijin/ModAssets/
+```
+
+Configs should reference model keys consistently.
+
+## AI Asset Request Format
 
 ```yaml
-asset_id: portrait_lin_pingzhi_young
-type: Portrait
-character_id: lin_pingzhi
-priority: high
-status: requested
-
-prompt:
-  style: wuxia rpg portrait
-  description: young Han Chinese swordsman, tragic expression, scholar-warrior bearing
-  constraints:
-    - no modern clothing
-    - consistent with existing jynew art style
-
-fallback:
-  use_placeholder: true
+asset_id: portrait_mu_wanqing_001
+type: portrait
+output_path: Assets/Mods/qingqingzijin/BuildSource/heads/
+format: png
+style: wuxia 3D RPG portrait consistent with 群侠传启动
+character:
+  name: 木婉清
+  age: 18
+  traits:
+    - cold
+    - elegant
+    - black veil
 ```
-
-## Codex Rules
-
-Codex should create asset request files, not binary image assets.
-
-Generated images should be produced by a separate art pipeline.
-
-## Acceptance Criteria
-
-- Missing assets are detected.
-- Asset requests are generated.
-- Quests can use placeholders.
-- Runtime does not break when final art is missing.

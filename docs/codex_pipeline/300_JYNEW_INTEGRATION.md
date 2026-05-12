@@ -1,62 +1,84 @@
 # 300_JYNEW_INTEGRATION.md
 
-# JYNew Integration
-
 ## Goal
 
-Integrate the narrative runtime into the existing Unity project with minimal disruption.
+Integrate the MOD with existing 群侠传启动 mechanics.
 
-## First Step for Codex
+## Primary Integration Points
 
-Codex must inspect the repo and identify:
+### 1. Configs
 
-```text
-existing character system
-existing battle trigger system
-existing map/scene system
-existing inventory system
-existing save system
-existing UI/dialogue system
-existing data loading pattern
-```
-
-## Integration Strategy
-
-Add adapter interfaces:
-
-```csharp
-ICharacterAdapter
-IBattleAdapter
-IInventoryAdapter
-IMapAdapter
-ISaveAdapter
-IDialogueUIAdapter
-```
-
-Narrative runtime should depend on adapters, not directly on legacy internals.
-
-## Example Flow
+Use:
 
 ```text
-Quest step: START_BATTLE
-    ↓
-QuestRuntime
-    ↓
-IBattleAdapter.StartBattle(battleId)
-    ↓
-Existing JYNew battle system
+Assets/Mods/qingqingzijin/Configs/
 ```
 
-## Directory Recommendation
+Expected tables include:
 
 ```text
-Assets/Scripts/Narrative/
-Assets/Narrative/
+场景.xlsx
+角色.xlsx
+战斗.xlsx
+物品.xlsx
+武功.xlsx
 ```
 
-## Acceptance Criteria
+### 2. Map BindScript
 
-- Narrative runtime can call existing battle system.
-- Narrative runtime can grant existing items.
-- Narrative runtime can spawn or show existing NPCs.
-- Existing gameplay still works.
+For scenes, set `BindScript` in `场景.xlsx`.
+
+The bound Lua file should expose:
+
+```lua
+function Start()
+end
+```
+
+### 3. Map Triggers
+
+Scene objects under:
+
+```text
+Level/Triggers
+```
+
+can bind:
+
+- enter trigger
+- interaction trigger
+- use-item trigger
+
+### 4. Dynamic Objects
+
+Scene objects under:
+
+```text
+Level/Dynamic
+```
+
+can be shown or hidden using Lua.
+
+### 5. Battle
+
+Use:
+
+```lua
+TryBattle(battleId)
+TryBattleWithConfig(battleConfig)
+```
+
+### 6. Timeline
+
+Use:
+
+```lua
+jyx2_PlayTimelineSimple(...)
+jyx2_Wait(...)
+```
+
+## Core Rule
+
+Use the existing platform API.
+
+Do not recreate systems that already exist.

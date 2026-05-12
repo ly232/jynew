@@ -1,62 +1,40 @@
 # 500_MAIN_CHARACTER_ROUTE.md
 
-# Main Character Route
-
 ## Goal
 
-Implement the player protagonist's central progression route.
+Implement the opening/player-introduction route.
 
-## Narrative Role
+## Recommended First Slice
 
-The main character route acts as the spine that connects all book routes and companion routes.
-
-## Core Flags
-
-```yaml
-intro_completed: false
-protagonist_identity_revealed: false
-first_companion_joined: false
-jianghu_phase: 0
-```
-
-## Quest Chain
+Quest chain:
 
 ```text
-MC_001_INTRO
-MC_002_FIRST_JIANGHU_ENTRY
-MC_003_FIRST_ROUTE_UNLOCK
-MC_004_ROUTE_CONVERGENCE
-MC_005_FINAL_ALIGNMENT
+main_intro_001
+main_intro_002
+main_intro_003
 ```
 
-## Quest Example
+## Required Flags
 
-```yaml
-quest_id: mc_001_intro
-title: 初入江湖
-category: MainStory
-
-steps:
-  - step_id: opening_dialogue
-    type: DIALOGUE
-    dialogue_id: DLG_MC_INTRO_001
-
-  - step_id: receive_starting_items
-    type: GIVE_ITEM
-    items:
-      - basic_sword
-      - minor_healing_pill
-
-completion:
-  emit_events:
-    - event_type: SET_FLAG
-      payload:
-        flag: intro_completed
-        value: true
+```text
+qqzj_global_intro_started
+qqzj_global_intro_completed
+qqzj_player_first_weapon_selected
+qqzj_player_first_companion_met
 ```
 
-## Acceptance Criteria
+## Required Content
 
-- Intro can be completed.
-- Intro unlocks early route quests.
-- Main route state persists.
+```text
+Lua/data/quests/main_intro.lua
+Lua/data/dialogues/main_intro.lua
+Lua/quests/main_intro_handlers.lua
+Lua/scenes/intro_start.lua
+```
+
+## Runtime Requirements
+
+- Use `QQZJ.QuestRuntime`.
+- Use `QQZJ.Dialogue`.
+- Use `QQZJ.WorldFlags`.
+- Use existing scene trigger APIs.

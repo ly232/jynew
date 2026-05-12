@@ -1,60 +1,46 @@
 # 900_TESTING_STRATEGY.md
 
-# Testing Strategy
-
 ## Goal
 
-Make narrative content testable and regression-safe.
+Test the MOD using official workflow.
 
-## Test Types
+## Testing Modes
 
-### Runtime Unit Tests
+### Full MOD Test
 
-- event bus emits events
-- reducers update flags
-- condition evaluator works
-- quest state transitions work
+Start Unity Editor, press Play, load platform, select MOD.
 
-### Content Validation Tests
+### Single Scene Test
 
-Validate YAML/JSON:
-
-- IDs are unique
-- referenced dialogue exists
-- referenced battle exists
-- referenced item exists or has fallback
-- route locks are valid
-- no impossible requirements
-
-### Playtest Smoke Tests
-
-For each chapter:
+Open a scene under:
 
 ```text
-start quest
-run required dialogue
-complete battle
-complete quest
-save game
-load game
-verify flags
+Assets/Mods/qingqingzijin/Maps/GameMaps/
 ```
 
-## Debug Tools
+Press Play.
 
-Codex should add editor/debug tools:
+This can create a new save for testing the scene directly.
+
+## Lua Hot Reload Caveat
+
+Lua script files can often be modified in Editor without restarting the whole game.
+
+However:
+
+- Lua library files loaded at MOD initialization may require reload/restart.
+- Config table changes may require restarting the game.
+
+## Test Checklist
 
 ```text
-PrintWorldFlags
-PrintQuestStates
-ForceStartQuest
-ForceSetFlag
-ReplayNarrativeEvents
-ValidateNarrativeContent
+[ ] scene loads
+[ ] Start() runs
+[ ] NPC appears correctly
+[ ] trigger binds correctly
+[ ] dialogue appears
+[ ] battle starts if needed
+[ ] flags update
+[ ] re-entering scene restores state
+[ ] quest cannot repeat if completed
 ```
-
-## Acceptance Criteria
-
-- Narrative content can be validated without full manual playthrough.
-- Save/load can be smoke-tested.
-- Broken references are caught early.

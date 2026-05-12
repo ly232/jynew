@@ -1,46 +1,35 @@
 # 800_SIDEQUESTS.md
 
-# Sidequests
-
 ## Goal
 
-Provide a reusable structure for important sidequests.
+Define the sidequest content model.
 
-## Sidequest Types
+## Sidequest Principles
+
+Sidequests should be:
+
+- small
+- isolated
+- flag-driven
+- reusable for testing runtime systems
+
+## Sidequest Data
 
 ```text
-Companion recruitment
-Martial art manual
-Weapon acquisition
-Faction reputation
-Hidden romance condition
-Optional boss
+Lua/data/quests/sidequests/
+Lua/data/dialogues/sidequests/
+Lua/quests/sidequests/
 ```
 
-## Sidequest Schema
+## Recommended First Sidequest
 
-```yaml
-quest_id: side_manual_bixie
-title: 辟邪剑谱线索
-category: SideQuest
-
-requirements:
-  all:
-    - flag: xajh_ch1_completed
-      equals: true
-
-steps:
-  - step_id: find_clue
-    type: DIALOGUE
-    dialogue_id: DLG_SIDE_BIXIE_001
-
-rewards:
-  items:
-    - clue_bixie_manual
+```text
+side_fuzhou_medicine_001
 ```
 
-## Acceptance Criteria
+This can test:
 
-- Sidequests can depend on route flags.
-- Sidequests can unlock hidden conditions.
-- Sidequests can be completed independently.
+- item reward
+- dialogue choice
+- SetFlagInt
+- repeat prevention

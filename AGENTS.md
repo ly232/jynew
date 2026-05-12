@@ -1,47 +1,45 @@
-# Repository Overview
+# AGENTS.md
 
-This repo extends jynew into a large-scale branching wuxia CRPG based on 金书红颜录5《青青子衿》.
+## Project Goal
 
-# Architecture Priority
+Build a MOD-contained 金书红颜录5《青青子衿》 expansion for 群侠传启动 / jynew.
 
-Always follow:
-1. docs/codex_pipeline/010_ARCHITECTURE_OVERVIEW.md
-2. Runtime system docs
-3. Integration docs
-4. Story docs
+## Critical Rule
 
-# Important Rules
+Prefer MOD-contained Lua/config/map/assets work under:
 
-- Never rewrite unrelated systems.
-- Never replace existing combat architecture unless instructed.
-- Preserve save compatibility.
-- Prefer data-driven quest implementation.
+```text
+Assets/Mods/qingqingzijin/
+```
 
-# Narrative Runtime
+Do not add or depend on new C# code unless a task explicitly says engine fork/platform contribution is allowed.
 
-The project uses:
-- Event sourcing
-- World flags
-- Narrative reducers
-- Branch resolvers
+## Architecture Priority
 
-# Content Pipeline
+Read in order:
 
-Story content is defined in:
-Assets/Narrative/
+1. docs/codex_pipeline/000_README.md
+2. docs/codex_pipeline/004_LUA_RUNTIME_PRINCIPLES.md
+3. docs/codex_pipeline/010_ARCHITECTURE_OVERVIEW.md
+4. Current task doc
 
-Quest files are YAML-driven.
+## Forbidden By Default
 
-# Forbidden
+Do not modify:
 
-Do not:
-- rewrite rendering
-- refactor unrelated systems
-- rename existing prefabs globally
+```text
+Assets/Scripts/**
+ProjectSettings/**
+Assets/BuildSource/**
+Assets/Mods/other_mods/**
+```
 
-# Required Before Completion
+unless explicitly allowed.
 
-Before finishing any task:
-- project compiles
-- no save compatibility break
-- acceptance criteria satisfied
+## Required Before Finishing
+
+- Keep work scoped to allowed files.
+- Preserve official MOD packaging model.
+- Avoid cross-MOD asset dependencies.
+- Prefer existing base assets.
+- Keep new generated assets under Assets/Mods/qingqingzijin.

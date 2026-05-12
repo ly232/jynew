@@ -1,128 +1,101 @@
 # 010_ARCHITECTURE_OVERVIEW.md
 
-# Architecture Overview
+## Updated Architecture
 
-## Objective
+The expansion should be implemented as a MOD-contained, Lua-first narrative layer.
 
-Add a narrative runtime layer to `jynew` that can support a 金书红颜录5《青青子衿》-style branching RPG without replacing the existing Unity project.
+## Architecture Layers
 
-The key principle is:
+### Layer 1 — Existing 群侠传启动 Platform
 
-> Keep the existing game systems. Add a new orchestration layer above them.
+Existing platform provides:
 
-## Layered Architecture
+- Unity runtime
+- base assets
+- map loading
+- config loading
+- battle system
+- save system
+- Lua VM / xLua bridge
+- MOD loading and AssetBundle system
 
-```text
-Existing JYNew Runtime
-    ↑
-Narrative Runtime Adapter
-    ↑
-Quest / Dialogue / Event Runtime
-    ↑
-Structured Narrative Data
-    ↑
-Guide / 攻略 Extraction
-```
+Do not replace these.
 
-## Existing Runtime Layer
+### Layer 2 — Qingqingzijin MOD Layer
 
-The existing Unity project likely already contains systems for:
-
-- maps
-- characters
-- combat
-- items
-- martial arts
-- UI
-- save/load
-- prefabs
-- scenes
-
-Codex should inspect the repo and reuse these whenever possible.
-
-## New Narrative Runtime Layer
-
-Add these systems:
+Located at:
 
 ```text
-NarrativeEventBus
-NarrativeReducer
-WorldFlagRegistry
-QuestManager
-DialogueManager
-BranchResolver
-NarrativeSaveSerializer
-AssetRequestRegistry
+Assets/Mods/qingqingzijin/
 ```
 
-## Why Event Sourcing
+Contains:
 
-Large wuxia route games have many hidden dependencies:
+- Lua narrative runtime
+- Config tables
+- Game maps
+- Battle maps
+- BuildSource resources
+- portraits
+- generated assets
+- dialogue/quest data
 
-- whether a character has joined
-- whether a character has died
-- whether a route is locked
-- whether a manual was obtained
-- whether a faction was offended
-- whether a romance branch is available
+### Layer 3 — Narrative DSL Layer
 
-Direct mutation becomes hard to debug.
-
-Instead:
+Stored as Lua tables or config files under:
 
 ```text
-Quest emits event
-Reducer updates world state
-Runtime queries world state
+Assets/Mods/qingqingzijin/Lua/data/
 ```
 
-## High-Level Data Flow
+The DSL describes:
+
+- quests
+- dialogue
+- branches
+- route locks
+- rewards
+- map triggers
+- battles
+
+## Important Change From Earlier Plan
+
+Do not create a C# `NarrativeEventBus` as the default.
+
+Instead implement:
+
+```lua
+QQZJ.EventBus
+QQZJ.WorldFlags
+QQZJ.QuestRuntime
+QQZJ.DialogueRuntime
+QQZJ.BranchResolver
+```
+
+## Optional Engine Fork Path
+
+If a required feature cannot be implemented in Lua/configs, create a separate task for engine modification.
+
+C# work must be treated as platform contribution, not normal MOD content.
+
+## Main Runtime Flow
 
 ```text
-Player action
-    ↓
-Quest trigger
-    ↓
-Quest step execution
-    ↓
-Dialogue / battle / item / cutscene
-    ↓
-Narrative events
-    ↓
-World flags update
-    ↓
-Branch availability changes
+Player enters map
+  ↓
+Scene BindScript Start() runs
+  ↓
+Lua scene script initializes dynamic objects and triggers
+  ↓
+Player interacts with trigger
+  ↓
+Lua quest function executes
+  ↓
+QQZJ runtime checks flags and quest state
+  ↓
+Dialogue / battle / reward / map mutation occurs
+  ↓
+SetFlagInt + ModifyEvent + QQZJ state are updated
+  ↓
+Save persists state through existing game mechanisms
 ```
-
-## Directory Plan
-
-```text
-Assets/Narrative/
-    Events/
-    Quests/
-    Dialogues/
-    Cutscenes/
-    Routes/
-    WorldFlags/
-    AssetRequests/
-```
-
-## Non-Goals
-
-Do not implement the entire 金书红颜录5 content in one pass.
-
-Do not rewrite combat.
-
-Do not rewrite the whole save system.
-
-Do not hardcode route logic inside random MonoBehaviours.
-
-## Acceptance Criteria
-
-After this architecture is implemented:
-
-- quests can start based on map/NPC/item triggers
-- dialogue can branch based on world flags
-- narrative events can update world flags
-- save/load restores narrative progression
-- route locks are deterministic

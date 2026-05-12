@@ -1,115 +1,58 @@
 # 021_WORLD_FLAGS_SYSTEM.md
 
-# World Flags System
-
 ## Goal
 
-Implement a global queryable registry for narrative state.
+Implement a Lua wrapper around existing game flags.
 
-World flags are the primary way that quests, dialogues, NPC spawns, and route locks communicate.
-
-## Flag Types
-
-Support at least:
+## File
 
 ```text
-bool
-int
-string
-enum-like string
+Assets/Mods/qingqingzijin/Lua/runtime/world_flags.lua
 ```
 
-## Examples
+## Why
 
-```yaml
-lin_pingzhi_met: true
-lin_pingzhi_joined: false
-ren_yingying_affection: 35
-current_xajh_route: righteous
-bixie_sword_manual_obtained: true
+The manual describes RPG state as map triggers + flags + ModifyEvent + saved game state.
+
+Therefore QQZJ world flags should be backed by existing save-compatible APIs whenever possible.
+
+## Namespace
+
+```lua
+QQZJ = QQZJ or {}
+QQZJ.WorldFlags = QQZJ.WorldFlags or {}
 ```
 
-## Categories
+## API
 
-### Character Flags
+```lua
+QQZJ.WorldFlags.get(key)
+QQZJ.WorldFlags.set(key, value)
+QQZJ.WorldFlags.is_true(key)
+QQZJ.WorldFlags.require_all(keys)
+QQZJ.WorldFlags.require_any(keys)
+QQZJ.WorldFlags.require_none(keys)
+```
+
+## Backing Store
+
+Prefer existing save-backed functions:
+
+```lua
+SetFlagInt(key, value)
+GetFlagInt(key)
+```
+
+If `GetFlagInt` is unavailable, maintain fallback in-memory table but document that persistence is incomplete.
+
+## Flag Naming
+
+Use stable English IDs:
 
 ```text
-character.met
-character.joined
-character.alive
-character.location
-character.affection
-character.route_state
+qqzj_intro_completed
+qqzj_xajh_ch1_started
+qqzj_xajh_ch1_completed
+qqzj_lin_pingzhi_joined
+qqzj_ren_yingying_joined
 ```
-
-### Route Flags
-
-```text
-route.started
-route.locked
-route.completed
-route.selected
-```
-
-### Item Flags
-
-```text
-item.obtained
-manual.learned
-weapon.obtained
-```
-
-### Global Flags
-
-```text
-chapter.completed
-ending.unlocked
-world.phase
-```
-
-## Query Schema
-
-Quest and dialogue data should express conditions as data:
-
-```yaml
-conditions:
-  all:
-    - flag: lin_pingzhi_met
-      equals: true
-    - flag: xajh_ch1_completed
-      equals: true
-  none:
-    - flag: xajh_dark_route_locked
-      equals: true
-```
-
-## C# API
-
-Suggested API:
-
-```csharp
-bool GetBool(string key);
-int GetInt(string key);
-string GetString(string key);
-
-void SetBool(string key, bool value);
-void SetInt(string key, int value);
-void SetString(string key, string value);
-
-bool Evaluate(NarrativeCondition condition);
-```
-
-## Debugging Tool
-
-Codex should add a simple debug view or log utility that prints:
-
-- all flags
-- changed flags
-- flags changed by latest event
-
-## Acceptance Criteria
-
-- Flags can be set by reducer.
-- Dialogue can query flags.
-- Quest requirements can query flags.
-- Flags persist in save files.

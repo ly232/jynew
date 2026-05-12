@@ -1,77 +1,41 @@
 # 025_BRANCHING_STORY_SYSTEM.md
 
-# Branching Story System
-
 ## Goal
 
-Support large-scale mutually exclusive and conditional route branching.
+Represent large 金书红颜录-style branching in Lua data and flags.
 
-## Branch Types
+## File
 
 ```text
-MainRoute
-BookRoute
-CompanionRoute
-RomanceRoute
-FactionRoute
-HiddenRoute
-EndingRoute
+Assets/Mods/qingqingzijin/Lua/runtime/branch_resolver.lua
 ```
 
-## Route Definition Schema
+## Route Data
 
-```yaml
-route_id: xajh_righteous
-title: 笑傲江湖正线
-
-requirements:
-  all:
-    - flag: xajh_ch1_completed
-      equals: true
-
-locks:
-  - xajh_dark
-
-unlocks:
-  - xajh_ch2_hengshan
+```lua
+QQZJ_DATA_ROUTES["xajh_righteous"] = {
+  requirements = {
+    all = { "qqzj_xajh_ch1_completed" },
+    none = { "qqzj_xajh_dark_locked" }
+  },
+  locks = { "xajh_dark" }
+}
 ```
 
-## Branch Evaluation
+## API
 
-BranchResolver should evaluate:
-
-- requirements
-- locks
-- prerequisites
-- hidden conditions
-- companion availability
-- ending eligibility
-
-## Conflict Rules
-
-When a route is selected:
-
-1. Emit `ROUTE_SELECTED`.
-2. Lock incompatible routes.
-3. Update world flags.
-4. Refresh available quests.
-
-## Example
-
-```yaml
-route_id: xajh_dark
-requirements:
-  all:
-    - flag: lin_pingzhi_darkened
-      equals: true
-    - flag: yue_lingshan_dead
-      equals: true
-locks:
-  - xajh_righteous
+```lua
+QQZJ.BranchResolver.can_enter(route_id)
+QQZJ.BranchResolver.select(route_id)
+QQZJ.BranchResolver.lock(route_id)
+QQZJ.BranchResolver.is_locked(route_id)
 ```
 
-## Acceptance Criteria
+## State Backing
 
-- Selecting one route locks incompatible routes.
-- Hidden routes unlock only when conditions are satisfied.
-- Quest availability updates after branch changes.
+Use flags:
+
+```text
+qqzj_route_xajh_righteous_selected
+qqzj_route_xajh_dark_locked
+```

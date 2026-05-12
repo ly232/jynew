@@ -1,30 +1,228 @@
 # MANIFEST.md
 
-Files included:
+# Project Identity
 
-- 000_README.md
-- 010_ARCHITECTURE_OVERVIEW.md
-- 020_RUNTIME_EVENT_SYSTEM.md
-- 021_WORLD_FLAGS_SYSTEM.md
-- 022_DIALOGUE_RUNTIME.md
-- 023_QUEST_RUNTIME.md
-- 024_SAVE_SYSTEM.md
-- 025_BRANCHING_STORY_SYSTEM.md
-- 100_CONTENT_PIPELINE.md
-- 200_ASSET_PIPELINE.md
-- 201_AI_PORTRAIT_PIPELINE.md
-- 202_NPC_GENERATION_PIPELINE.md
-- 300_JYNEW_INTEGRATION.md
-- 301_EXISTING_SYSTEM_MAPPING.md
-- 302_PREFAB_REUSE.md
-- 400_STORY_GLOBAL_TIMELINE.md
-- 500_MAIN_CHARACTER_ROUTE.md
-- 600_XAJH_ROUTE.md
-- 601_XAJH_CH1_FUZHOU.md
-- 602_XAJH_CH2_HENGSHAN.md
-- 700_LDJ_ROUTE.md
-- 701_LDJ_CH1_YANGZHOU.md
-- 800_SIDEQUESTS.md
-- 900_TESTING_STRATEGY.md
-- 950_SAVE_COMPATIBILITY.md
-- 999_FINAL_INTEGRATION.md
+Project:
+qingqingzijin
+
+Base Engine:
+jynew
+
+Project Type:
+Narrative-heavy MOD for 群侠传启动
+
+Narrative Source:
+金书红颜录5《青青子衿》
+
+---
+
+# Repository Structure
+
+## Engine Layer
+
+Core jynew engine files.
+
+Generally should remain untouched.
+
+Examples:
+
+* Assets/Scripts/
+* engine rendering
+* platform systems
+
+---
+
+## MOD Layer
+
+Primary development area.
+
+Location:
+
+Assets/Mods/qingqingzijin/
+
+Contains:
+
+* Lua
+* Configs
+* Maps
+* BuildSource
+* ModAssets
+* Skills
+
+---
+
+# Documentation Structure
+
+## docs/codex_pipeline/
+
+Contains all AI-oriented implementation specifications.
+
+---
+
+# Core Architecture Docs
+
+## 000_README.md
+
+High-level project overview.
+
+---
+
+## 001_REPO_AND_MOD_SETUP.md
+
+How the MOD should be structured.
+
+---
+
+## 002_MOD_DIRECTORY_CONTRACT.md
+
+Defines required directories and conventions.
+
+---
+
+## 003_ASSETBUNDLE_CONTRACT.md
+
+Defines AssetBundle usage rules.
+
+---
+
+## 004_LUA_RUNTIME_PRINCIPLES.md
+
+Defines Lua runtime architecture.
+
+---
+
+# Runtime Strategy
+
+Primary runtime architecture:
+
+* Lua-driven
+* Scene-trigger-driven
+* Config-table-driven
+* BuildSource override system
+
+Avoid:
+
+* heavy engine rewrites
+* large new C# systems
+
+---
+
+# Narrative Structure
+
+Narrative implementation uses:
+
+* scene triggers
+* Lua scripts
+* SetFlag
+* ModifyEvent
+* scene_api.BindEvent
+* timeline cutscenes
+
+---
+
+# Quest Structure
+
+Each quest chapter should contain:
+
+* Lua scripts
+* dialogue definitions
+* map triggers
+* config references
+* optional timelines
+
+---
+
+# Asset Structure
+
+## Reused Assets
+
+Prefer:
+Assets/BuildSource/
+
+These are effectively free references via base_assets.
+
+---
+
+## New Assets
+
+Place under:
+Assets/Mods/qingqingzijin/
+
+---
+
+# Scene Rules
+
+All scenes:
+
+* must use qingqingzijin_maps
+* should avoid cross-mod references
+* should be validated in AssetBundle Browser
+
+---
+
+# Lua Architecture
+
+## Lua Library Files
+
+Loaded once globally.
+
+Used for:
+
+* shared utilities
+* global helpers
+* wrappers
+* state helpers
+
+---
+
+## Lua Scene Scripts
+
+Executed repeatedly.
+
+Used for:
+
+* scene triggers
+* events
+* dialogue
+* battles
+
+---
+
+# Recommended Development Order
+
+1. MOD setup
+2. Lua infrastructure
+3. Global helper library
+4. Scene trigger framework
+5. Dialogue framework
+6. Quest flow
+7. One playable intro chapter
+8. Save validation
+9. Branching routes
+
+---
+
+# Important Constraints
+
+Do not:
+
+* break save compatibility
+* create cross-mod dependencies
+* rewrite engine unnecessarily
+* introduce unrelated C# refactors
+
+---
+
+# First Milestone
+
+Goal:
+
+Playable opening chapter:
+
+* entering first map
+* interacting with NPCs
+* branching dialogue
+* one battle
+* one timeline cutscene
+* save/load validation
+

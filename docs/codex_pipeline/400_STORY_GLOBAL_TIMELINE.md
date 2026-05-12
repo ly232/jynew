@@ -1,51 +1,74 @@
 # 400_STORY_GLOBAL_TIMELINE.md
 
-# Story Global Timeline
-
 ## Goal
 
-Define the macro structure of the 金书红颜录5《青青子衿》-style expansion.
+Define the high-level story sequencing model for 金书红颜录5《青青子衿》 adaptation.
 
-## Major Route Families
-
-```text
-Main Character Route
-十四天书 Routes
-Companion Routes
-Faction Routes
-Romance / Relationship Routes
-Hidden Endings
-Important Sidequests
-```
-
-## Runtime Phases
+## High-Level Structure
 
 ```text
-Phase 0: Intro / Character Creation
-Phase 1: Early Jianghu
-Phase 2: Route Selection Opens
-Phase 3: Major Faction Conflicts
-Phase 4: Book Route Convergence
-Phase 5: Final Route Locks
-Phase 6: Ending Resolution
+Intro
+  ↓
+Early Jianghu Routes
+  ↓
+Fourteen Book Routes
+  ↓
+Companion/Relationship Branches
+  ↓
+Late Global Convergence
+  ↓
+Ending Selection
 ```
 
-## Global World Flags
+## Route Categories
 
-```yaml
-intro_completed: false
-jianghu_phase: 0
-all_books_completed: false
-final_route_locked: false
-ending_route_selected: none
+```text
+main_character_route
+xajh_route
+ldj_route
+tlbb_route
+sdxl_route
+shediao_route
+shendiao_route
+yitian_route
+bixuejian_route
+fei_route
+xueshan_route
+liancheng_route
+shuke_route
+yuanyangdao_route
+sidequests
 ```
 
-## Progression Principle
+## Global State Flags
 
-The player should feel free to explore, but the runtime should track route locks explicitly.
+Use prefix:
 
-## Acceptance Criteria
+```text
+qqzj_global_
+```
 
-- Global phases exist.
-- Routes can declare required phase.
-- Endings can evaluate global completion.
+Examples:
+
+```text
+qqzj_global_intro_completed
+qqzj_global_all_books_completed
+qqzj_global_final_route_unlocked
+```
+
+## Implementation Rule
+
+Do not implement all routes at once.
+
+Start with:
+
+```text
+Intro + one short route vertical slice
+```
+
+Recommended first vertical slice:
+
+```text
+main_intro
+xajh_ch1
+```

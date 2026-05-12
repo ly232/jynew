@@ -1,87 +1,81 @@
 # 100_CONTENT_PIPELINE.md
 
-# Content Pipeline
-
 ## Goal
 
-Convert wiki-style攻略 into structured, data-driven content.
+Convert wiki攻略 into MOD-ready Lua/config/map content.
 
-## Input
-
-Human-readable攻略 pages.
-
-## Output
-
-Structured content files:
+## Pipeline
 
 ```text
-Quests/*.yaml
-Dialogues/*.yaml
-Cutscenes/*.yaml
-Routes/*.yaml
-AssetRequests/*.yaml
+Wiki walkthrough
+  ↓
+Canonical event list
+  ↓
+Quest Lua data
+  ↓
+Dialogue Lua data
+  ↓
+Scene trigger script
+  ↓
+Configs Excel rows
+  ↓
+Map/Battle assets
 ```
 
-## Extraction Process
+## Output Per Chapter
+
+Each chapter should produce:
 
 ```text
-Read攻略 page
-    ↓
-Identify route/chapter
-    ↓
-Extract quest chain
-    ↓
-Extract requirements
-    ↓
-Extract triggers
-    ↓
-Extract rewards
-    ↓
-Extract route locks
-    ↓
-Write structured YAML
+Lua/data/quests/{route}_{chapter}.lua
+Lua/data/dialogues/{route}_{chapter}.lua
+Lua/scenes/{scene}.lua
+Lua/quests/{route}_{chapter}_handlers.lua
+Configs changes
+Asset requests
 ```
 
-## Canonical Extraction Template
+## Content Extraction Template
 
-For each攻略 section, extract:
+For each攻略 step, extract:
 
-```yaml
-source_page:
-chapter:
-route:
-required_prior_events:
-trigger_location:
-trigger_npc:
-quest_steps:
-battles:
-rewards:
-new_flags:
-locked_routes:
-unlocked_routes:
-asset_requests:
+```text
+location
+trigger type
+preconditions
+dialogue
+battle
+items
+companions
+flags set
+flags checked
+map changes
+route locks
+next quest
 ```
 
-## Codex Responsibility
+## Quest Data Rule
 
-Codex should not infer canon freely.
+Do not encode long quest logic directly in scene scripts.
 
-Codex may:
+Scene scripts should call:
 
-- format extracted content
-- generate boilerplate YAML
-- generate placeholder dialogue
-- create asset request entries
+```lua
+QQZJ.QuestRuntime.run("quest_id")
+```
 
-Codex should not:
+## Scene Script Rule
 
-- invent major plot branches
-- alter route dependencies
-- ignore hidden requirements
+Scene scripts are for map binding and trigger entry points.
 
-## Acceptance Criteria
+Example:
 
-- Every chapter has structured quest files.
-- Every dialogue has stable IDs.
-- Every asset gap is tracked.
-- Every route lock is explicit.
+```lua
+function Start()
+  QQZJ.Scene.init_fuzhou()
+end
+
+function TalkLinPingzhi()
+  QQZJ.QuestRuntime.run("xajh_ch1_001")
+end
+```

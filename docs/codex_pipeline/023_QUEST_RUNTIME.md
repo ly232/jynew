@@ -1,108 +1,82 @@
 # 023_QUEST_RUNTIME.md
 
-# Quest Runtime
-
 ## Goal
 
-Build a data-driven quest runtime that can express branching 金书红颜录-style story content.
+Implement data-driven quests in Lua.
 
-## Quest Lifecycle
-
-```text
-NotStarted
-Available
-Active
-Completed
-Failed
-Locked
-```
-
-## Quest Schema
-
-```yaml
-quest_id: xajh_ch1_fuzhou
-title: 福州旧案
-category: RouteStory
-route: xajh
-
-requirements:
-  all:
-    - flag: intro_completed
-      equals: true
-
-trigger:
-  type: NPC_INTERACTION
-  map_id: fuzhou
-  npc_id: lin_pingzhi
-
-steps:
-  - step_id: talk_to_lin_pingzhi
-    type: DIALOGUE
-    dialogue_id: DLG_XAJH_001
-
-  - step_id: qingcheng_ambush
-    type: BATTLE
-    battle_id: BTL_XAJH_QINGCHENG_001
-
-  - step_id: receive_clue
-    type: REWARD
-    rewards:
-      items:
-        - clue_fuwei_bia局
-
-completion:
-  emit_events:
-    - event_type: QUEST_COMPLETED
-      payload:
-        quest_id: xajh_ch1_fuzhou
-    - event_type: SET_FLAG
-      payload:
-        flag: xajh_ch1_completed
-        value: true
-```
-
-## Trigger Types
-
-Support:
+## File
 
 ```text
-NPC_INTERACTION
-MAP_ENTER
-ITEM_OBTAINED
-BATTLE_COMPLETED
-FLAG_CHANGED
-CUTSCENE_COMPLETED
+Assets/Mods/qingqingzijin/Lua/runtime/quest_runtime.lua
 ```
 
-## Step Types
+## Quest State
 
-Support:
+Use save-backed flags:
 
 ```text
-DIALOGUE
-BATTLE
-CUTSCENE
-GIVE_ITEM
-REMOVE_ITEM
-ADD_COMPANION
-REMOVE_COMPANION
-SET_LOCATION
-WAIT_FOR_FLAG
+qqzj_quest_{quest_id}_started
+qqzj_quest_{quest_id}_completed
+qqzj_quest_{quest_id}_failed
 ```
 
-## Route Locking
+## Quest Data
 
-Quest completion may lock incompatible branches.
+Store quest definitions under:
 
-```yaml
-locks:
-  - xajh_dark_route
+```text
+Assets/Mods/qingqingzijin/Lua/data/quests/
 ```
 
-## Acceptance Criteria
+Example:
 
-- Quests load from data.
-- Quest steps execute sequentially.
-- Quest steps can branch.
-- Quest state persists across saves.
-- Quest completion emits events.
+```lua
+QQZJ_DATA_QUESTS["xajh_ch1_001"] = {
+  title = "福州初遇",
+  requirements = {
+    all = { "qqzj_intro_completed" },
+    none = { "qqzj_xajh_ch1_completed" }
+  },
+  steps = {
+    { type = "dialogue", id = "dlg_xajh_001" },
+    { type = "battle", id = 10001 },
+    { type = "reward_item", item_id = 42, count = 1 },
+    { type = "set_flag", key = "qqzj_xajh_ch1_completed", value = 1 }
+  }
+}
+```
+
+## Supported Step Types
+
+```text
+dialogue
+battle
+dynamic_battle
+reward_item
+set_flag
+modify_event
+replace_scene_object
+play_timeline
+wait
+dark_scene
+light_scene
+call_lua
+```
+
+## Mapping To Existing APIs
+
+Use existing functions:
+
+```lua
+Talk
+TryBattle
+TryBattleWithConfig
+AddItem
+SetFlagInt
+ModifyEvent
+jyx2_ReplaceSceneObject
+jyx2_PlayTimelineSimple
+jyx2_Wait
+DarkScence
+LightScence
+```

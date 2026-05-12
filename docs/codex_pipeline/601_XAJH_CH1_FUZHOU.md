@@ -1,104 +1,59 @@
 # 601_XAJH_CH1_FUZHOU.md
 
-# 笑傲江湖 Chapter 1 — 福州旧案
+## Goal
 
-## Scope
+Implement first 笑傲江湖 vertical slice in 福州.
 
-Implement the first 笑傲江湖 quest chapter.
+## Quest ID
 
-## Required Systems
-
-- QuestRuntime
-- DialogueRuntime
-- WorldFlags
-- EventBus
-- BattleAdapter
-- InventoryAdapter
-
-## New Flags
-
-```yaml
-xajh_started: false
-lin_pingzhi_met: false
-fuwei_case_started: false
-qingcheng_ambush_defeated: false
-xajh_ch1_completed: false
+```text
+xajh_ch1_001
 ```
 
-## Quest
+## Required Files
 
-```yaml
-quest_id: xajh_ch1_fuzhou
-title: 福州旧案
-category: RouteStory
-route: xajh
-
-requirements:
-  all:
-    - flag: intro_completed
-      equals: true
-
-trigger:
-  type: MAP_ENTER
-  map_id: fuzhou
-
-steps:
-  - step_id: meet_lin_pingzhi
-    type: DIALOGUE
-    dialogue_id: DLG_XAJH_FUZHOU_001
-
-  - step_id: qingcheng_ambush
-    type: BATTLE
-    battle_id: BTL_XAJH_QINGCHENG_001
-
-  - step_id: post_battle_dialogue
-    type: DIALOGUE
-    dialogue_id: DLG_XAJH_FUZHOU_002
-
-completion:
-  emit_events:
-    - event_type: SET_FLAG
-      payload:
-        flag: xajh_ch1_completed
-        value: true
+```text
+Lua/data/quests/xajh_ch1.lua
+Lua/data/dialogues/xajh_ch1.lua
+Lua/quests/xajh_ch1_handlers.lua
+Lua/scenes/fuzhou.lua
 ```
 
-## Dialogue Stub
+## Required Flags
 
-```yaml
-dialogue_id: DLG_XAJH_FUZHOU_001
-nodes:
-  - id: start
-    speaker: lin_pingzhi
-    text: "少侠，青城派欺人太甚，我林家只怕大祸临头。"
-    choices:
-      - text: "我随你去看看。"
-        next: accept
-      - text: "江湖恩怨，与我无关。"
-        next: refuse
+```text
+qqzj_xajh_ch1_started
+qqzj_xajh_ch1_completed
+qqzj_xajh_lin_pingzhi_met
+qqzj_xajh_qingcheng_ambush_defeated
 ```
 
-## Battle Stub
+## Quest Outline
 
-```yaml
-battle_id: BTL_XAJH_QINGCHENG_001
-enemy_group:
-  - qingcheng_disciple_001
-  - qingcheng_disciple_002
-reward:
-  exp: 100
-```
+1. Player enters 福州.
+2. `Start()` initializes NPC visibility.
+3. Player talks to 林平之.
+4. Dialogue starts.
+5. 青城派 ambush battle starts.
+6. If battle won, set completion flags.
+7. Modify map trigger to avoid repeat.
+8. Optional reward.
 
-## Asset Requests
+## Required APIs
 
-```yaml
-- portrait_lin_pingzhi_young
-- avatar_qingcheng_disciple
+```lua
+Talk
+TryBattle
+SetFlagInt
+ModifyEvent
+jyx2_ReplaceSceneObject
+scene_api.BindEvent
 ```
 
 ## Acceptance Criteria
 
-- Entering Fuzhou after intro triggers the quest.
-- Lin Pingzhi dialogue appears.
-- Battle starts and completes.
-- Quest completion sets `xajh_ch1_completed`.
+- Quest can be triggered from scene function.
+- Dialogue appears.
+- Battle can be invoked.
+- Completion flag is set.
+- Quest cannot repeat after completion.

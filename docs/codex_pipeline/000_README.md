@@ -1,99 +1,62 @@
-# 000_README.md
+# JYNew / 群侠传启动 × 金书红颜录5《青青子衿》
+# Codex Sequential Prompt Pipeline
 
-# JYNew × 金书红颜录5《青青子衿》 Codex Narrative Pipeline
+## Purpose
 
-## Goal
+This folder contains a sequential, one-file-at-a-time implementation plan for building a large 金书红颜录5《青青子衿》-style MOD on top of the existing `jynew` / 《群侠传，启动！》 project.
 
-Expand the existing Unity project `jynew` into a large-scale narrative-driven wuxia RPG inspired by the story structure, branching density, and character-route style of 金书红颜录5《青青子衿》.
+## Major Correction After Reading the Developer Manual
 
-This document set is designed to be consumed by Codex one file at a time, sequentially.
+Earlier architecture assumed we could freely add C# runtime systems into the Unity project. The developer manual changes the implementation strategy:
 
-The goal is not to ask Codex to "make a whole game." The goal is to guide Codex through a controlled, incremental, verifiable expansion of the existing Unity project.
+- A normal MOD should be developed inside `Assets/Mods/{modId}`.
+- MOD logic should primarily use Lua scripts, configuration tables, maps, prefabs, and BuildSource assets.
+- MODs cannot rely on newly compiled C# code that is not already included in the host app, because packaged MODs run through the existing platform runtime and Lua VM.
+- If C# changes are needed, they should be treated as optional engine/platform contributions, not as the default MOD path.
 
-## Core Strategy
+Therefore this pipeline now uses a **Lua-first, MOD-contained narrative runtime**.
 
-Use a data-driven narrative architecture:
+## Recommended MOD ID
 
-```text
-攻略 / Story Guide
-    ↓
-Canonical Quest Graph
-    ↓
-Quest / Dialogue / Event YAML
-    ↓
-Narrative Runtime
-    ↓
-Existing JYNew Unity Systems
-```
-
-## Execution Order
-
-Codex should process these files in numeric order.
+Use a lowercase underscore name:
 
 ```text
-000_README.md
-010_ARCHITECTURE_OVERVIEW.md
-020_RUNTIME_EVENT_SYSTEM.md
-021_WORLD_FLAGS_SYSTEM.md
-022_DIALOGUE_RUNTIME.md
-023_QUEST_RUNTIME.md
-024_SAVE_SYSTEM.md
-025_BRANCHING_STORY_SYSTEM.md
-100_CONTENT_PIPELINE.md
-200_ASSET_PIPELINE.md
-201_AI_PORTRAIT_PIPELINE.md
-202_NPC_GENERATION_PIPELINE.md
-300_JYNEW_INTEGRATION.md
-301_EXISTING_SYSTEM_MAPPING.md
-302_PREFAB_REUSE.md
-400_STORY_GLOBAL_TIMELINE.md
-500_MAIN_CHARACTER_ROUTE.md
-600_XAJH_ROUTE.md
-601_XAJH_CH1_FUZHOU.md
-602_XAJH_CH2_HENGSHAN.md
-700_LDJ_ROUTE.md
-701_LDJ_CH1_YANGZHOU.md
-800_SIDEQUESTS.md
-900_TESTING_STRATEGY.md
-950_SAVE_COMPATIBILITY.md
-999_FINAL_INTEGRATION.md
+qingqingzijin
 ```
 
-## Rules for Codex
-
-1. Do not rewrite unrelated systems.
-2. Prefer adding new narrative runtime systems over modifying legacy gameplay systems.
-3. Implement one subsystem or one quest chapter per task.
-4. Keep every step compile-safe.
-5. Add tests or validation utilities whenever possible.
-6. Treat narrative state as data, not hardcoded C# branches.
-7. Use existing JYNew assets whenever possible.
-8. Only create asset-generation requests when an asset is missing.
-9. Preserve save compatibility.
-10. Do not invent large amounts of story outside the provided quest specs unless explicitly asked.
-
-## Intended Repository Location
-
-Place these docs under:
+All following examples assume:
 
 ```text
-docs/codex_pipeline/
+Assets/Mods/qingqingzijin/
 ```
 
-Narrative data should eventually live under:
+## Execution Rule for Codex
 
-```text
-Assets/Narrative/
-```
+Prompt Codex with one MD file at a time, in this order:
 
-## Completion Definition
+1. `001_REPO_AND_MOD_SETUP.md`
+2. `002_MOD_DIRECTORY_CONTRACT.md`
+3. `003_ASSETBUNDLE_CONTRACT.md`
+4. `004_LUA_RUNTIME_PRINCIPLES.md`
+5. `010_ARCHITECTURE_OVERVIEW.md`
+6. `020_LUA_EVENT_SYSTEM.md`
+7. `021_WORLD_FLAGS_SYSTEM.md`
+8. `022_DIALOGUE_RUNTIME.md`
+9. `023_QUEST_RUNTIME.md`
+10. `024_SAVE_AND_STATE.md`
+11. `025_BRANCHING_STORY_SYSTEM.md`
+12. `100_CONTENT_PIPELINE.md`
+13. `200_ASSET_PIPELINE.md`
+14. `300_JYNEW_INTEGRATION.md`
+15. Story route files
 
-This pipeline is complete when the project has:
+## Global Codex Rules
 
-- data-driven quests
-- branching dialogue
-- persistent world flags
-- event-sourced narrative state
-- route locking
-- reusable asset request workflow
-- chapter-by-chapter implementation path
+Codex must:
+
+- Work inside `Assets/Mods/qingqingzijin/` by default.
+- Prefer Lua + Configs + Maps + BuildSource over C# changes.
+- Avoid modifying platform/core code unless a task explicitly says “engine fork allowed.”
+- Preserve the official MOD packaging model.
+- Keep all new MOD resources assignable to the correct AssetBundle labels.
+- Use existing base assets whenever possible to reduce package size.
