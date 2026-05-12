@@ -9,9 +9,9 @@ Package the MOD according to official requirements.
 A valid distribution contains:
 
 ```text
-qingqingzijin_mod
-qingqingzijin_maps
-qingqingzijin.xml
+jshyl_mod
+jshyl_maps
+jshyl.xml
 ```
 
 All three must be distributed together.
@@ -25,17 +25,17 @@ A PC MOD build is not automatically valid for Android/iOS/OSX.
 ## Packaging Checklist
 
 ```text
-[ ] All scenes labeled qingqingzijin_maps
-[ ] All non-scene assets labeled qingqingzijin_mod
+[ ] All scenes labeled jshyl_maps
+[ ] All non-scene assets labeled jshyl_mod
 [ ] No cross-MOD dependencies
 [ ] No missing BuildSource files
-[ ] ModSettings metadata correct
-[ ] qingqingzijin.xml generated
+[ ] ModSetting metadata correct
+[ ] jshyl.xml generated
 [ ] package tested by selecting MOD in platform UI
 ```
 
 ## Native MOD Option
 
-If shipping bundled with the base app, ModSettings may support native MOD mode.
+If shipping bundled with the base app, ModSetting may support native MOD mode.
 
 Only use this deliberately.

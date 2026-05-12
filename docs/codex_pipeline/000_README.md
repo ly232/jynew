@@ -16,18 +16,20 @@ Earlier architecture assumed we could freely add C# runtime systems into the Uni
 
 Therefore this pipeline now uses a **Lua-first, MOD-contained narrative runtime**.
 
-## Recommended MOD ID
+## MOD Identity
 
-Use a lowercase underscore name:
+Use the existing MOD id and root:
 
 ```text
-qingqingzijin
+jshyl
 ```
+
+`qingqingzijin` / `QQZJ` is a campaign/content namespace inside `jshyl`, implemented as `JSHYL.QQZJ`. Do not create or expand `Assets/Mods/qingqingzijin` as a standalone MOD.
 
 All following examples assume:
 
 ```text
-Assets/Mods/qingqingzijin/
+Assets/Mods/jshyl/
 ```
 
 ## Execution Rule for Codex
@@ -54,7 +56,7 @@ Prompt Codex with one MD file at a time, in this order:
 
 Codex must:
 
-- Work inside `Assets/Mods/qingqingzijin/` by default.
+- Work inside `Assets/Mods/jshyl/` by default.
 - Prefer Lua + Configs + Maps + BuildSource over C# changes.
 - Avoid modifying platform/core code unless a task explicitly says “engine fork allowed.”
 - Preserve the official MOD packaging model.

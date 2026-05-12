@@ -7,15 +7,15 @@ Create a Lua dialogue helper layer that uses the existing Talk/UI APIs.
 ## File
 
 ```text
-Assets/Mods/qingqingzijin/Lua/runtime/dialogue_runtime.lua
+Assets/Mods/jshyl/Lua/runtime/dialogue_runtime.lua
 ```
 
 ## Runtime API
 
 ```lua
-QQZJ.Dialogue.say(speaker_id, text)
-QQZJ.Dialogue.choice(prompt, choices)
-QQZJ.Dialogue.run(dialogue_id)
+JSHYL.QQZJ.Dialogue.say(speaker_id, text)
+JSHYL.QQZJ.Dialogue.choice(prompt, choices)
+JSHYL.QQZJ.Dialogue.run(dialogue_id)
 ```
 
 ## Dialogue Data
@@ -23,15 +23,18 @@ QQZJ.Dialogue.run(dialogue_id)
 Store dialogue data as Lua tables:
 
 ```text
-Assets/Mods/qingqingzijin/Lua/data/dialogues/
+Assets/Mods/jshyl/Lua/data/dialogues/
 ```
 
 Example:
 
 ```lua
-QQZJ_DATA_DIALOGUES = QQZJ_DATA_DIALOGUES or {}
+JSHYL = JSHYL or {}
+JSHYL.QQZJ = JSHYL.QQZJ or {}
+JSHYL.QQZJ.Data = JSHYL.QQZJ.Data or {}
+JSHYL.QQZJ.Data.Dialogues = JSHYL.QQZJ.Data.Dialogues or {}
 
-QQZJ_DATA_DIALOGUES["dlg_xajh_001"] = {
+JSHYL.QQZJ.Data.Dialogues["dlg_xajh_001"] = {
   speaker = 35,
   text = "少侠，你终于来了。",
   choices = {
@@ -60,7 +63,7 @@ Do not build a new Unity UI system.
 Portraits should be added under:
 
 ```text
-Assets/Mods/qingqingzijin/BuildSource/heads/
+Assets/Mods/jshyl/BuildSource/heads/
 ```
 
 PNG format.

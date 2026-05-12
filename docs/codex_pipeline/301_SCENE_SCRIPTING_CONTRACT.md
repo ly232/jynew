@@ -7,7 +7,7 @@ Standardize scene scripting for the MOD.
 ## Scene Script Location
 
 ```text
-Assets/Mods/qingqingzijin/Lua/scenes/
+Assets/Mods/jshyl/Lua/scenes/
 ```
 
 Example:
@@ -20,18 +20,22 @@ fuzhou.lua
 
 ```lua
 function Start()
-  QQZJ.Scene = QQZJ.Scene or {}
-  QQZJ.Scene.init_fuzhou()
+  JSHYL = JSHYL or {}
+  JSHYL.QQZJ = JSHYL.QQZJ or {}
+  JSHYL.QQZJ.Scene = JSHYL.QQZJ.Scene or {}
+  JSHYL.QQZJ.Scene.init_fuzhou()
 end
 ```
 
 ## Recommended Pattern
 
 ```lua
-QQZJ.Scene = QQZJ.Scene or {}
+JSHYL = JSHYL or {}
+JSHYL.QQZJ = JSHYL.QQZJ or {}
+JSHYL.QQZJ.Scene = JSHYL.QQZJ.Scene or {}
 
-function QQZJ.Scene.init_fuzhou()
-  if QQZJ.WorldFlags.is_true("qqzj_xajh_ch1_completed") then
+function JSHYL.QQZJ.Scene.init_fuzhou()
+  if JSHYL.QQZJ.WorldFlags.is_true("qqzj_xajh_ch1_completed") then
     jyx2_ReplaceSceneObject("", "NPC/LinPingzhi", "")
   else
     jyx2_ReplaceSceneObject("", "NPC/LinPingzhi", "1")
@@ -41,7 +45,7 @@ function QQZJ.Scene.init_fuzhou()
 end
 
 function TalkLinPingzhi()
-  QQZJ.QuestRuntime.run("xajh_ch1_001")
+  JSHYL.QQZJ.QuestRuntime.run("xajh_ch1_001")
 end
 ```
 

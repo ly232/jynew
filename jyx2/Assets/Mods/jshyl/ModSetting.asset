@@ -23,6 +23,13 @@ MonoBehaviour:
   ModArchiveVersion: 0
   PlayerName: "慕容主角"
   PreloadedLua:
+  - jshyl_main
+  - jshyl_qqzj_runtime
+  - jshyl_qqzj_flags
+  - jshyl_qqzj_dialogue
+  - jshyl_qqzj_scene_api
+  - jshyl_qqzj_routes
+  - jshyl_qqzj_quest
   - jshyl_story_index
   - jshyl_route_data
   - modentry

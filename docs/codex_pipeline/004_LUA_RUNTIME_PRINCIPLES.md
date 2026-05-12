@@ -24,16 +24,34 @@ Assume:
 
 ### Lua Library Files
 
-Loaded once at MOD startup through ModSettings.
+Loaded once at MOD startup through `Assets/Mods/jshyl/ModSetting.asset` / `PreloadedLua`.
 
 Use for:
 
 ```text
-Lua/main_qingqingzijin.lua
+Lua/jshyl_main.lua
+Lua/jshyl_qqzj_runtime.lua
+Lua/jshyl_qqzj_flags.lua
+Lua/jshyl_qqzj_dialogue.lua
+Lua/jshyl_qqzj_scene_api.lua
+Lua/jshyl_qqzj_routes.lua
+Lua/jshyl_qqzj_quest.lua
 Lua/runtime/event_bus.lua
 Lua/runtime/world_flags.lua
 Lua/runtime/quest_runtime.lua
 Lua/runtime/dialogue_runtime.lua
+```
+
+Recommended `PreloadedLua` ordering:
+
+```text
+jshyl_main
+jshyl_qqzj_runtime
+jshyl_qqzj_flags
+jshyl_qqzj_dialogue
+jshyl_qqzj_scene_api
+jshyl_qqzj_routes
+jshyl_qqzj_quest
 ```
 
 ### Scene/Quest Script Files
@@ -69,10 +87,11 @@ jyx2_Wait(...)
 All new global tables must be namespaced:
 
 ```lua
-QQZJ = QQZJ or {}
-QQZJ.EventBus = {}
-QQZJ.WorldFlags = {}
-QQZJ.QuestRuntime = {}
+JSHYL = JSHYL or {}
+JSHYL.QQZJ = JSHYL.QQZJ or {}
+JSHYL.QQZJ.EventBus = {}
+JSHYL.QQZJ.WorldFlags = {}
+JSHYL.QQZJ.QuestRuntime = {}
 ```
 
 Avoid generic globals such as:

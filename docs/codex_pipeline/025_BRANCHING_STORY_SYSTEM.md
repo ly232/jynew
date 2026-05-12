@@ -7,13 +7,18 @@ Represent large 金书红颜录-style branching in Lua data and flags.
 ## File
 
 ```text
-Assets/Mods/qingqingzijin/Lua/runtime/branch_resolver.lua
+Assets/Mods/jshyl/Lua/runtime/branch_resolver.lua
 ```
 
 ## Route Data
 
 ```lua
-QQZJ_DATA_ROUTES["xajh_righteous"] = {
+JSHYL = JSHYL or {}
+JSHYL.QQZJ = JSHYL.QQZJ or {}
+JSHYL.QQZJ.Data = JSHYL.QQZJ.Data or {}
+JSHYL.QQZJ.Data.Routes = JSHYL.QQZJ.Data.Routes or {}
+
+JSHYL.QQZJ.Data.Routes["xajh_righteous"] = {
   requirements = {
     all = { "qqzj_xajh_ch1_completed" },
     none = { "qqzj_xajh_dark_locked" }
@@ -25,10 +30,10 @@ QQZJ_DATA_ROUTES["xajh_righteous"] = {
 ## API
 
 ```lua
-QQZJ.BranchResolver.can_enter(route_id)
-QQZJ.BranchResolver.select(route_id)
-QQZJ.BranchResolver.lock(route_id)
-QQZJ.BranchResolver.is_locked(route_id)
+JSHYL.QQZJ.BranchResolver.can_enter(route_id)
+JSHYL.QQZJ.BranchResolver.select(route_id)
+JSHYL.QQZJ.BranchResolver.lock(route_id)
+JSHYL.QQZJ.BranchResolver.is_locked(route_id)
 ```
 
 ## State Backing

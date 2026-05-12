@@ -11,7 +11,7 @@ Integrate the MOD with existing 群侠传启动 mechanics.
 Use:
 
 ```text
-Assets/Mods/qingqingzijin/Configs/
+Assets/Mods/jshyl/Configs/
 ```
 
 Expected tables include:

@@ -55,7 +55,7 @@ If state must survive re-entry, also back it with flags and Start() initializati
 
 Each scene's `Start()` function should:
 
-1. read QQZJ flags
+1. read JSHYL.QQZJ flags
 2. show/hide dynamic objects
 3. bind or disable events
 4. restore NPC availability

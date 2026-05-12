@@ -3,7 +3,7 @@
 # Project Identity
 
 Project:
-qingqingzijin
+jshyl
 
 Base Engine:
 jynew
@@ -13,6 +13,9 @@ Narrative-heavy MOD for 群侠传启动
 
 Narrative Source:
 金书红颜录5《青青子衿》
+
+Campaign Namespace:
+qingqingzijin / QQZJ, implemented as `JSHYL.QQZJ` inside the jshyl MOD
 
 ---
 
@@ -34,11 +37,11 @@ Examples:
 
 ## MOD Layer
 
-Primary development area.
+Primary development area. `Assets/Mods/qingqingzijin` is deprecated/disabled and must not be expanded as a standalone MOD.
 
 Location:
 
-Assets/Mods/qingqingzijin/
+Assets/Mods/jshyl/
 
 Contains:
 
@@ -146,7 +149,7 @@ These are effectively free references via base_assets.
 ## New Assets
 
 Place under:
-Assets/Mods/qingqingzijin/
+Assets/Mods/jshyl/
 
 ---
 
@@ -154,7 +157,7 @@ Assets/Mods/qingqingzijin/
 
 All scenes:
 
-* must use qingqingzijin_maps
+* must use jshyl_maps
 * should avoid cross-mod references
 * should be validated in AssetBundle Browser
 
@@ -169,7 +172,7 @@ Loaded once globally.
 Used for:
 
 * shared utilities
-* global helpers
+* global helpers under `JSHYL.QQZJ`
 * wrappers
 * state helpers
 

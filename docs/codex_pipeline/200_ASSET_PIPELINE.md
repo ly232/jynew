@@ -19,9 +19,9 @@ This creates near-zero package-size cost.
 Place MOD-specific assets under:
 
 ```text
-Assets/Mods/qingqingzijin/BuildSource/
-Assets/Mods/qingqingzijin/ModAssets/
-Assets/Mods/qingqingzijin/Skills/
+Assets/Mods/jshyl/BuildSource/
+Assets/Mods/jshyl/ModAssets/
+Assets/Mods/jshyl/Skills/
 ```
 
 ## Portraits
@@ -29,7 +29,7 @@ Assets/Mods/qingqingzijin/Skills/
 Use:
 
 ```text
-Assets/Mods/qingqingzijin/BuildSource/heads/
+Assets/Mods/jshyl/BuildSource/heads/
 ```
 
 Format:
@@ -43,8 +43,8 @@ png
 Use:
 
 ```text
-Assets/Mods/qingqingzijin/BuildSource/Musics/
-Assets/Mods/qingqingzijin/BuildSource/sound/
+Assets/Mods/jshyl/BuildSource/Musics/
+Assets/Mods/jshyl/BuildSource/sound/
 ```
 
 Music should use mp3 container format when following manual conventions.
@@ -54,7 +54,7 @@ Music should use mp3 container format when following manual conventions.
 Use:
 
 ```text
-Assets/Mods/qingqingzijin/ModAssets/
+Assets/Mods/jshyl/ModAssets/
 ```
 
 Configs should reference model keys consistently.
@@ -64,7 +64,7 @@ Configs should reference model keys consistently.
 ```yaml
 asset_id: portrait_mu_wanqing_001
 type: portrait
-output_path: Assets/Mods/qingqingzijin/BuildSource/heads/
+output_path: Assets/Mods/jshyl/BuildSource/heads/
 format: png
 style: wuxia 3D RPG portrait consistent with 群侠传启动
 character:

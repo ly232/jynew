@@ -15,7 +15,7 @@ Start Unity Editor, press Play, load platform, select MOD.
 Open a scene under:
 
 ```text
-Assets/Mods/qingqingzijin/Maps/GameMaps/
+Assets/Mods/jshyl/Maps/GameMaps/
 ```
 
 Press Play.

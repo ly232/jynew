@@ -7,31 +7,32 @@ Implement a Lua wrapper around existing game flags.
 ## File
 
 ```text
-Assets/Mods/qingqingzijin/Lua/runtime/world_flags.lua
+Assets/Mods/jshyl/Lua/runtime/world_flags.lua
 ```
 
 ## Why
 
 The manual describes RPG state as map triggers + flags + ModifyEvent + saved game state.
 
-Therefore QQZJ world flags should be backed by existing save-compatible APIs whenever possible.
+Therefore JSHYL.QQZJ world flags should be backed by existing save-compatible APIs whenever possible.
 
 ## Namespace
 
 ```lua
-QQZJ = QQZJ or {}
-QQZJ.WorldFlags = QQZJ.WorldFlags or {}
+JSHYL = JSHYL or {}
+JSHYL.QQZJ = JSHYL.QQZJ or {}
+JSHYL.QQZJ.WorldFlags = JSHYL.QQZJ.WorldFlags or {}
 ```
 
 ## API
 
 ```lua
-QQZJ.WorldFlags.get(key)
-QQZJ.WorldFlags.set(key, value)
-QQZJ.WorldFlags.is_true(key)
-QQZJ.WorldFlags.require_all(keys)
-QQZJ.WorldFlags.require_any(keys)
-QQZJ.WorldFlags.require_none(keys)
+JSHYL.QQZJ.WorldFlags.get(key)
+JSHYL.QQZJ.WorldFlags.set(key, value)
+JSHYL.QQZJ.WorldFlags.is_true(key)
+JSHYL.QQZJ.WorldFlags.require_all(keys)
+JSHYL.QQZJ.WorldFlags.require_any(keys)
+JSHYL.QQZJ.WorldFlags.require_none(keys)
 ```
 
 ## Backing Store

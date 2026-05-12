@@ -9,9 +9,9 @@ Ensure the MOD follows the official AssetBundle packaging model.
 A distributed MOD should produce three files:
 
 ```text
-qingqingzijin_mod
-qingqingzijin_maps
-qingqingzijin.xml
+jshyl_mod
+jshyl_maps
+jshyl.xml
 ```
 
 ## Required AssetBundle Labels
@@ -19,13 +19,13 @@ qingqingzijin.xml
 All non-scene MOD resources:
 
 ```text
-qingqingzijin_mod
+jshyl_mod
 ```
 
 All scene assets:
 
 ```text
-qingqingzijin_maps
+jshyl_maps
 ```
 
 Labels must be lowercase.
@@ -33,9 +33,9 @@ Labels must be lowercase.
 ## Scene vs Resource Split
 
 ```text
-Maps/GameMaps/*.unity      -> qingqingzijin_maps
-Maps/BattlesMaps/*.unity   -> qingqingzijin_maps
-Everything else            -> qingqingzijin_mod
+Maps/GameMaps/*.unity      -> jshyl_maps
+Maps/BattlesMaps/*.unity   -> jshyl_maps
+Everything else            -> jshyl_mod
 ```
 
 ## Dependency Rule
@@ -44,7 +44,7 @@ Prefer references to assets already in `base_assets`, especially project-level `
 
 This reduces MOD package size.
 
-If an asset is new and specific to this MOD, place it under `Assets/Mods/qingqingzijin/`.
+If an asset is new and specific to this MOD, place it under `Assets/Mods/jshyl/`.
 
 ## No Cross-MOD References
 
@@ -52,9 +52,9 @@ Do not reference assets from another MOD's AssetBundle.
 
 If copying from another MOD:
 
-1. copy the asset into `Assets/Mods/qingqingzijin/`
+1. copy the asset into `Assets/Mods/jshyl/`
 2. remove external bundle dependency
-3. relabel to `qingqingzijin_mod` or `qingqingzijin_maps`
+3. relabel to `jshyl_mod` or `jshyl_maps`
 
 ## Prompt To Codex
 
@@ -64,14 +64,14 @@ AGENTS.md
 docs/codex_pipeline/003_ASSETBUNDLE_CONTRACT.md
 
 Task:
-Inspect Assets/Mods/qingqingzijin and produce an AssetBundle labeling checklist.
+Inspect Assets/Mods/jshyl and produce an AssetBundle labeling checklist.
 Do not modify files yet.
 
 Check:
-1. scenes should be qingqingzijin_maps
-2. non-scenes should be qingqingzijin_mod
+1. scenes should be jshyl_maps
+2. non-scenes should be jshyl_mod
 3. no obvious cross-MOD references
-4. generated assets are inside qingqingzijin
+4. generated assets are inside jshyl
 
 Output only the checklist.
 ```

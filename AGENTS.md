@@ -2,14 +2,14 @@
 
 ## Project Goal
 
-Build a MOD-contained 金书红颜录5《青青子衿》 expansion for 群侠传启动 / jynew.
+Build the 金书红颜录 MOD for 群侠传启动 / jynew. The MOD root is `jshyl`; `qingqingzijin` / `QQZJ` is a campaign/content namespace inside that MOD.
 
 ## Critical Rule
 
-Prefer MOD-contained Lua/config/map/assets work under:
+Prefer MOD-contained Lua/config/map/assets work under the active MOD root:
 
 ```text
-Assets/Mods/qingqingzijin/
+Assets/Mods/jshyl/
 ```
 
 Do not add or depend on new C# code unless a task explicitly says engine fork/platform contribution is allowed.
@@ -42,4 +42,6 @@ unless explicitly allowed.
 - Preserve official MOD packaging model.
 - Avoid cross-MOD asset dependencies.
 - Prefer existing base assets.
-- Keep new generated assets under Assets/Mods/qingqingzijin.
+- Keep new generated assets under Assets/Mods/jshyl.
+- Do not expand Assets/Mods/qingqingzijin; it is deprecated/disabled and should not be treated as a standalone MOD.
+- New campaign Lua should use `JSHYL.QQZJ`, not a top-level `QQZJ` global.

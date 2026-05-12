@@ -40,9 +40,9 @@ docs/codex_pipeline/004_LUA_RUNTIME_PRINCIPLES.md
 Analyze the repo only. Do not modify code.
 
 Output:
-1. whether qingqingzijin MOD exists
+1. whether the jshyl MOD exists
 2. missing directories
-3. likely required ModSettings changes
+3. likely required ModSetting / PreloadedLua changes
 4. AssetBundle labeling risks
 5. whether any existing sample MOD can be reused as reference
 ```
@@ -55,11 +55,11 @@ AGENTS.md
 docs/codex_pipeline/004_LUA_RUNTIME_PRINCIPLES.md
 docs/codex_pipeline/020_LUA_EVENT_SYSTEM.md
 
-Implement QQZJ.EventBus in Lua only.
+Implement JSHYL.QQZJ.EventBus in Lua only.
 
 Allowed:
-Assets/Mods/qingqingzijin/Lua/runtime/event_bus.lua
-Assets/Mods/qingqingzijin/Lua/main_qingqingzijin.lua
+Assets/Mods/jshyl/Lua/runtime/event_bus.lua
+Assets/Mods/jshyl/Lua/jshyl_main.lua
 
 Forbidden:
 Assets/Scripts/**
@@ -72,11 +72,11 @@ Read:
 AGENTS.md
 docs/codex_pipeline/021_WORLD_FLAGS_SYSTEM.md
 
-Implement QQZJ.WorldFlags in Lua only.
+Implement JSHYL.QQZJ.WorldFlags in Lua only.
 
 Allowed:
-Assets/Mods/qingqingzijin/Lua/runtime/world_flags.lua
-Assets/Mods/qingqingzijin/Lua/main_qingqingzijin.lua
+Assets/Mods/jshyl/Lua/runtime/world_flags.lua
+Assets/Mods/jshyl/Lua/jshyl_main.lua
 
 Forbidden:
 Assets/Scripts/**
@@ -94,10 +94,10 @@ docs/codex_pipeline/601_XAJH_CH1_FUZHOU.md
 Implement xajh_ch1_001 as a Lua/data vertical slice.
 
 Allowed:
-Assets/Mods/qingqingzijin/Lua/data/quests/xajh_ch1.lua
-Assets/Mods/qingqingzijin/Lua/data/dialogues/xajh_ch1.lua
-Assets/Mods/qingqingzijin/Lua/quests/xajh_ch1_handlers.lua
-Assets/Mods/qingqingzijin/Lua/scenes/fuzhou.lua
+Assets/Mods/jshyl/Lua/data/quests/xajh_ch1.lua
+Assets/Mods/jshyl/Lua/data/dialogues/xajh_ch1.lua
+Assets/Mods/jshyl/Lua/quests/xajh_ch1_handlers.lua
+Assets/Mods/jshyl/Lua/scenes/fuzhou.lua
 
 Forbidden:
 Assets/Scripts/**

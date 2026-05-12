@@ -61,7 +61,7 @@ Do not encode long quest logic directly in scene scripts.
 Scene scripts should call:
 
 ```lua
-QQZJ.QuestRuntime.run("quest_id")
+JSHYL.QQZJ.QuestRuntime.run("quest_id")
 ```
 
 ## Scene Script Rule
@@ -72,10 +72,10 @@ Example:
 
 ```lua
 function Start()
-  QQZJ.Scene.init_fuzhou()
+  JSHYL.QQZJ.Scene.init_fuzhou()
 end
 
 function TalkLinPingzhi()
-  QQZJ.QuestRuntime.run("xajh_ch1_001")
+  JSHYL.QQZJ.QuestRuntime.run("xajh_ch1_001")
 end
 ```

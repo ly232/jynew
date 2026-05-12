@@ -34,7 +34,7 @@ Lua/scenes/intro_start.lua
 
 ## Runtime Requirements
 
-- Use `QQZJ.QuestRuntime`.
-- Use `QQZJ.Dialogue`.
-- Use `QQZJ.WorldFlags`.
+- Use `JSHYL.QQZJ.QuestRuntime`.
+- Use `JSHYL.QQZJ.Dialogue`.
+- Use `JSHYL.QQZJ.WorldFlags`.
 - Use existing scene trigger APIs.

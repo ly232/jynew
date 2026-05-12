@@ -26,7 +26,7 @@ Do not replace these.
 Located at:
 
 ```text
-Assets/Mods/qingqingzijin/
+Assets/Mods/jshyl/
 ```
 
 Contains:
@@ -45,7 +45,7 @@ Contains:
 Stored as Lua tables or config files under:
 
 ```text
-Assets/Mods/qingqingzijin/Lua/data/
+Assets/Mods/jshyl/Lua/data/
 ```
 
 The DSL describes:
@@ -65,11 +65,11 @@ Do not create a C# `NarrativeEventBus` as the default.
 Instead implement:
 
 ```lua
-QQZJ.EventBus
-QQZJ.WorldFlags
-QQZJ.QuestRuntime
-QQZJ.DialogueRuntime
-QQZJ.BranchResolver
+JSHYL.QQZJ.EventBus
+JSHYL.QQZJ.WorldFlags
+JSHYL.QQZJ.QuestRuntime
+JSHYL.QQZJ.DialogueRuntime
+JSHYL.QQZJ.BranchResolver
 ```
 
 ## Optional Engine Fork Path
@@ -91,11 +91,11 @@ Player interacts with trigger
   ↓
 Lua quest function executes
   ↓
-QQZJ runtime checks flags and quest state
+JSHYL.QQZJ runtime checks flags and quest state
   ↓
 Dialogue / battle / reward / map mutation occurs
   ↓
-SetFlagInt + ModifyEvent + QQZJ state are updated
+SetFlagInt + ModifyEvent + JSHYL.QQZJ state are updated
   ↓
 Save persists state through existing game mechanisms
 ```

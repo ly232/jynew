@@ -7,7 +7,7 @@ Implement data-driven quests in Lua.
 ## File
 
 ```text
-Assets/Mods/qingqingzijin/Lua/runtime/quest_runtime.lua
+Assets/Mods/jshyl/Lua/runtime/quest_runtime.lua
 ```
 
 ## Quest State
@@ -25,13 +25,18 @@ qqzj_quest_{quest_id}_failed
 Store quest definitions under:
 
 ```text
-Assets/Mods/qingqingzijin/Lua/data/quests/
+Assets/Mods/jshyl/Lua/data/quests/
 ```
 
 Example:
 
 ```lua
-QQZJ_DATA_QUESTS["xajh_ch1_001"] = {
+JSHYL = JSHYL or {}
+JSHYL.QQZJ = JSHYL.QQZJ or {}
+JSHYL.QQZJ.Data = JSHYL.QQZJ.Data or {}
+JSHYL.QQZJ.Data.Quests = JSHYL.QQZJ.Data.Quests or {}
+
+JSHYL.QQZJ.Data.Quests["xajh_ch1_001"] = {
   title = "福州初遇",
   requirements = {
     all = { "qqzj_intro_completed" },

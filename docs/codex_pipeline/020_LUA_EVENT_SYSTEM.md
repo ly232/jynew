@@ -7,28 +7,29 @@ Implement a lightweight Lua event bus for narrative orchestration.
 ## File
 
 ```text
-Assets/Mods/qingqingzijin/Lua/runtime/event_bus.lua
+Assets/Mods/jshyl/Lua/runtime/event_bus.lua
 ```
 
 ## Namespace
 
 ```lua
-QQZJ = QQZJ or {}
-QQZJ.EventBus = QQZJ.EventBus or {}
+JSHYL = JSHYL or {}
+JSHYL.QQZJ = JSHYL.QQZJ or {}
+JSHYL.QQZJ.EventBus = JSHYL.QQZJ.EventBus or {}
 ```
 
 ## Required Features
 
 ```lua
-QQZJ.EventBus.publish(event_type, payload)
-QQZJ.EventBus.subscribe(event_type, handler)
-QQZJ.EventBus.replay(events)
+JSHYL.QQZJ.EventBus.publish(event_type, payload)
+JSHYL.QQZJ.EventBus.subscribe(event_type, handler)
+JSHYL.QQZJ.EventBus.replay(events)
 ```
 
 Keep a simple in-memory event history:
 
 ```lua
-QQZJ.EventBus.history = {}
+JSHYL.QQZJ.EventBus.history = {}
 ```
 
 ## Event Shape
@@ -73,11 +74,11 @@ docs/codex_pipeline/004_LUA_RUNTIME_PRINCIPLES.md
 docs/codex_pipeline/020_LUA_EVENT_SYSTEM.md
 
 Task:
-Implement QQZJ.EventBus in Lua only.
+Implement JSHYL.QQZJ.EventBus in Lua only.
 
 Allowed:
-Assets/Mods/qingqingzijin/Lua/runtime/event_bus.lua
-Assets/Mods/qingqingzijin/Lua/main_qingqingzijin.lua
+Assets/Mods/jshyl/Lua/runtime/event_bus.lua
+Assets/Mods/jshyl/Lua/jshyl_main.lua
 
 Forbidden:
 Assets/Scripts/**

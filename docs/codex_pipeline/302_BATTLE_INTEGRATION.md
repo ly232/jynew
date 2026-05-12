@@ -15,7 +15,7 @@ TryBattle(10001)
 The battle must exist in:
 
 ```text
-Assets/Mods/qingqingzijin/Configs/战斗.xlsx
+Assets/Mods/jshyl/Configs/战斗.xlsx
 ```
 
 ## Dynamic Battle
@@ -41,11 +41,11 @@ end
 Battle scenes live under:
 
 ```text
-Assets/Mods/qingqingzijin/Maps/BattlesMaps/
+Assets/Mods/jshyl/Maps/BattlesMaps/
 ```
 
 and must be labeled:
 
 ```text
-qingqingzijin_maps
+jshyl_maps
 ```
