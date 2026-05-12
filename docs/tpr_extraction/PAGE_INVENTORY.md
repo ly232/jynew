@@ -40,7 +40,8 @@ notes
 | page title | page url | category | route/book | status | dependencies | target maps | target Lua files | target battles | rewards/items | flags | notes |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 金书红颜录5 青青子衿 | https://tpr.inkit.cc/start | index | global | inventoried | none | TBD | TBD | TBD | TBD | TBD | start page and navigation hub; not gameplay coverage |
-| 主角剧情 | https://tpr.inkit.cc/tpr5:主角剧情 | story_route | 主角 | inventoried | none | 52_yanziwu, TBD | TBD | TBD | TBD | TBD | likely first real TPR extraction target |
+| 主角剧情 | https://tpr.inkit.cc/tpr5:主角剧情 | story_route | 主角 | inventoried | none | 52_yanziwu, TBD | TBD | TBD | TBD | TBD | full page still not fully extracted; opening section has separate extracted row |
+| 主角剧情：开局 | https://tpr.inkit.cc/tpr5:主角剧情#开局 | story_section | 主角 | extracted | none | 52_yanziwu, 杭州城 hook, 开封 hook, TBD | opening event ids TBD, jshyl_qqzj_quest.lua | 侍剑/十二金钗 training TBD | 银子, 司南针, 九转熊蛇丸, 狼牙燕翎, 秦皇照骨镜, 洛阳铲, starter medicines, 水阁 chest rewards | qqzj_protagonist_opening_*; qqzj_yanziwu_services_* | extracted in docs/tpr_extraction/extractions/zhujuqinqing_opening.md; not implemented |
 | 飞狐外传 / 雪山飞狐 | https://tpr.inkit.cc/tpr5:飞雪 | book_route | 飞雪 | inventoried | TBD | TBD | TBD | TBD | TBD | TBD | start page groups 飞狐外传 and 雪山飞狐 |
 | 程灵素线 | https://tpr.inkit.cc/tpr5:程灵素线 | route_branch | 飞雪 | inventoried | 飞雪 | TBD | TBD | TBD | TBD | TBD | sidebar label: 灵素 |
 | 楚倾眉线 | https://tpr.inkit.cc/tpr5:楚倾眉线 | route_branch | 飞雪 | inventoried | 飞雪 | TBD | TBD | TBD | TBD | TBD | sidebar label: 楚袁 |

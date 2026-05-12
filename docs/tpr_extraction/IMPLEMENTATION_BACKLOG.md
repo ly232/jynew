@@ -37,7 +37,8 @@ deferred
 | id | source page | source url | type | status | dependencies | target maps | target Lua files | target battles | rewards/items | flags | notes |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | TPR-000 | PAGE_INVENTORY | https://tpr.inkit.cc/start?idx=tpr5 | inventory | ready | none | n/a | n/a | n/a | n/a | n/a | reconcile visible sitemap rows with reported 86-page wiki count |
-| TPR-001 | 主角剧情 | https://tpr.inkit.cc/tpr5:主角剧情 | extraction | planned | TPR-000 recommended | 52_yanziwu, TBD | TBD | TBD | opening rewards TBD | TBD | likely first real TPR page because it defines opening flow |
+| TPR-001 | 主角剧情：开局 | https://tpr.inkit.cc/tpr5:主角剧情#开局 | extraction | implemented | TPR-000 recommended | 52_yanziwu, 杭州城 hook, 开封 hook | opening event ids TBD, jshyl_qqzj_quest.lua | 侍剑/十二金钗 training TBD | opening rewards extracted | qqzj_protagonist_opening_* | extraction doc created; gameplay not implemented |
+| TPR-005 | 主角剧情：开局 | https://tpr.inkit.cc/tpr5:主角剧情#开局 | implementation | ready | TPR-001 | 52_yanziwu | opening event ids TBD, jshyl_qqzj_quest.lua | defer 侍剑 battle unless selected | first slice rewards TBD after item-id verification | qqzj_protagonist_opening_arrival_*; qqzj_protagonist_opening_qiudi_guard_* | recommended first implementation: arrival + 慕容秋荻 guard assignment |
 | TPR-002 | 越女剑 | https://tpr.inkit.cc/tpr5:越女剑 | extraction | planned | TPR-000 | 昆仑仙境, TBD | TBD | TBD | 阿青 rewards TBD | TBD | current prototype must be compared against source page before marking coverage |
 | TPR-003 | 逍遥御风 | https://tpr.inkit.cc/tpr5:逍遥御风 | extraction | planned | 天龙八部 dependency mapping | TBD | TBD | TBD | TBD | TBD | user previously requested 阿青/卓不凡 related storyline |
 | TPR-004 | 侠客行 | https://tpr.inkit.cc/tpr5:侠客行 | extraction | planned | 越女剑/神雕 dependencies TBD | TBD | TBD | TBD | TBD | TBD | user previously referenced 侠客岛/Aqing finale |

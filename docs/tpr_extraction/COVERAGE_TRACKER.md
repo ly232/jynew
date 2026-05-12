@@ -27,6 +27,7 @@ verified
 | Wiki pages reported by TPR start page | 86 | must be reconciled in inventory pass |
 | Pages currently inventoried | 48 | seeded from visible start page and sitemap entries |
 | Pages extracted | 0 | no full TPR page extraction yet |
+| Page sections extracted | 1 | `主角剧情：开局` only |
 | Pages implemented | 0 | Phase 2 slice excluded from TPR coverage |
 | Pages verified | 0 | no TPR page verified end to end yet |
 
@@ -47,7 +48,8 @@ verified
 | page title | page url | category | route/book | status | extraction record | implementation commits | verification evidence | notes |
 |---|---|---|---|---|---|---|---|---|
 | 金书红颜录5 青青子衿 | https://tpr.inkit.cc/start | index | global | inventoried | none | none | none | navigation hub only |
-| 主角剧情 | https://tpr.inkit.cc/tpr5:主角剧情 | story_route | 主角 | inventoried | none | none | none | likely first real extraction target |
+| 主角剧情 | https://tpr.inkit.cc/tpr5:主角剧情 | story_route | 主角 | inventoried | partial section extraction only | none | none | full page not extracted |
+| 主角剧情：开局 | https://tpr.inkit.cc/tpr5:主角剧情#开局 | story_section | 主角 | extracted | docs/tpr_extraction/extractions/zhujuqinqing_opening.md | none | none | first real TPR section extraction; not implemented |
 | 越女剑 | https://tpr.inkit.cc/tpr5:越女剑 | book_route | 越女剑 | inventoried | none | none | none | prototype exists but not source-verified |
 | 逍遥御风 | https://tpr.inkit.cc/tpr5:逍遥御风 | route_chapter | 天龙八部 | inventoried | none | none | none | user-requested future line |
 | 侠客行 | https://tpr.inkit.cc/tpr5:侠客行 | book_route | 侠客行 | inventoried | none | none | none | user-requested future dependency |
