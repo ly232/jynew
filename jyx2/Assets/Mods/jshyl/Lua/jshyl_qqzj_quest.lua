@@ -11,6 +11,7 @@ local QUEST_ID_PROTAGONIST_OPENING_ARRIVAL = "qqzj_protagonist_opening_arrival"
 local QUEST_ID_PROTAGONIST_OPENING_QIUDI_GUARD = "qqzj_protagonist_opening_qiudi_guard"
 local QUEST_ID_PROTAGONIST_OPENING_FAMILY_BRIEFING = "qqzj_protagonist_opening_family_briefing"
 local QUEST_ID_PROTAGONIST_OPENING_BROTHER_RETURN = "qqzj_protagonist_opening_brother_return"
+local QUEST_ID_PROTAGONIST_OPENING_SHIJIAN_TRAINING = "qqzj_protagonist_opening_shijian_training"
 
 local ABI_FLAGS = {
     started = "qqzj_intro_abi_guidance_started",
@@ -52,6 +53,13 @@ local PROTAGONIST_OPENING_BROTHER_RETURN_FLAGS = {
     dialogueSeen = "qqzj_protagonist_opening_brother_return_dialogue_seen",
     rewardClaimed = "qqzj_protagonist_opening_brother_return_reward_claimed",
     completed = "qqzj_protagonist_opening_brother_return_completed",
+}
+
+local PROTAGONIST_OPENING_SHIJIAN_TRAINING_FLAGS = {
+    started = "qqzj_protagonist_opening_shijian_training_started",
+    battleWon = "qqzj_protagonist_opening_shijian_training_battle_won",
+    rewardClaimed = "qqzj_protagonist_opening_shijian_training_reward_claimed",
+    completed = "qqzj_protagonist_opening_shijian_training_completed",
 }
 
 local PROTAGONIST_OPENING_LEGACY_FLAGS = {
@@ -252,6 +260,45 @@ local function run_protagonist_opening_brother_return()
     return true
 end
 
+local function run_protagonist_opening_shijian_training()
+    local Dialogue = dialogue()
+    local trainingBattleId = 145
+    local rewardItemId = 174 -- 银两, preserving existing 5205.lua reward.
+    local rewardCount = 500
+
+    set_flag(PROTAGONIST_OPENING_SHIJIAN_TRAINING_FLAGS.started, true)
+
+    if get_flag(PROTAGONIST_OPENING_SHIJIAN_TRAINING_FLAGS.completed) then
+        Dialogue.Talk(340, "侍剑：少主，十二金钗演武已经记下。今日不必重复支取赏银。")
+        return true
+    end
+
+    Dialogue.Talk(340, "侍剑：少主，十二金钗已经列阵。此战只为演武，不伤性命。是否现在开始？")
+    if Dialogue.YesNo("挑战十二金钗演武？") == false then
+        Dialogue.Talk(340, "侍剑：那我让她们候着。少主想练时再来。")
+        return false
+    end
+
+    if TryBattle(trainingBattleId) == false then
+        Dialogue.Talk(340, "侍剑：先歇一歇也好。演武可随时再来。")
+        return false
+    end
+
+    set_flag(PROTAGONIST_OPENING_SHIJIAN_TRAINING_FLAGS.battleWon, true)
+    Dialogue.Talk(340, "侍剑：少主今日进退有度。之后去杭州，也算有了几分底气。")
+
+    if not get_flag(PROTAGONIST_OPENING_SHIJIAN_TRAINING_FLAGS.rewardClaimed) then
+        AddItem(rewardItemId, rewardCount)
+        set_flag(PROTAGONIST_OPENING_SHIJIAN_TRAINING_FLAGS.rewardClaimed, true)
+    end
+
+    -- TODO: Source mentions 主角武常 +20 after 侍剑 training. The safe stat
+    -- mutation API is still unresolved, so this refactor preserves only the
+    -- existing battle 145 and 银两 id 174 x500 behavior.
+    set_flag(PROTAGONIST_OPENING_SHIJIAN_TRAINING_FLAGS.completed, true)
+    return true
+end
+
 local function run_abi_guidance()
     local Dialogue = dialogue()
     local rewardItemId = 3 -- 小还丹, a small existing starter healing item.
@@ -317,6 +364,7 @@ Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_ARRIVAL] = run_protagonist_opening_a
 Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_QIUDI_GUARD] = run_protagonist_opening_qiudi_guard
 Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_FAMILY_BRIEFING] = run_protagonist_opening_family_briefing
 Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_BROTHER_RETURN] = run_protagonist_opening_brother_return
+Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_SHIJIAN_TRAINING] = run_protagonist_opening_shijian_training
 
 function JSHYL.QQZJ.Quest.Run(questId)
     local handler = JSHYL.QQZJ.Quest.Handlers and JSHYL.QQZJ.Quest.Handlers[questId]
