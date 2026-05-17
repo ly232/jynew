@@ -12,6 +12,7 @@ local QUEST_ID_PROTAGONIST_OPENING_QIUDI_GUARD = "qqzj_protagonist_opening_qiudi
 local QUEST_ID_PROTAGONIST_OPENING_FAMILY_BRIEFING = "qqzj_protagonist_opening_family_briefing"
 local QUEST_ID_PROTAGONIST_OPENING_BROTHER_RETURN = "qqzj_protagonist_opening_brother_return"
 local QUEST_ID_PROTAGONIST_OPENING_SHIJIAN_TRAINING = "qqzj_protagonist_opening_shijian_training"
+local QUEST_ID_YANZIWU_TREASURE_SILVER_CHEST = "qqzj_yanziwu_treasure_silver_chest"
 
 local ABI_FLAGS = {
     started = "qqzj_intro_abi_guidance_started",
@@ -62,8 +63,18 @@ local PROTAGONIST_OPENING_SHIJIAN_TRAINING_FLAGS = {
     completed = "qqzj_protagonist_opening_shijian_training_completed",
 }
 
+local YANZIWU_TREASURE_SILVER_CHEST_FLAGS = {
+    started = "qqzj_yanziwu_treasure_silver_chest_started",
+    rewardClaimed = "qqzj_yanziwu_treasure_silver_chest_reward_claimed",
+    completed = "qqzj_yanziwu_treasure_silver_chest_completed",
+}
+
 local PROTAGONIST_OPENING_LEGACY_FLAGS = {
     openingDone = "jshyl_opening_done",
+}
+
+local YANZIWU_TREASURE_LEGACY_FLAGS = {
+    treasureTaken = "jshyl_yanzi_treasure_taken",
 }
 
 local function flags()
@@ -80,6 +91,14 @@ end
 
 local function set_flag(key, value)
     flags().SetBool(key, value)
+end
+
+local function get_flag_int(key)
+    return flags().GetInt(key, 0)
+end
+
+local function set_flag_int(key, value)
+    flags().SetInt(key, value)
 end
 
 local function migrate_abi_guidance_flags()
@@ -299,6 +318,38 @@ local function run_protagonist_opening_shijian_training()
     return true
 end
 
+local function migrate_yanziwu_treasure_silver_chest_flags()
+    if get_flag_int(YANZIWU_TREASURE_LEGACY_FLAGS.treasureTaken) == 1 then
+        set_flag(YANZIWU_TREASURE_SILVER_CHEST_FLAGS.rewardClaimed, true)
+        set_flag(YANZIWU_TREASURE_SILVER_CHEST_FLAGS.completed, true)
+    end
+end
+
+local function run_yanziwu_treasure_silver_chest()
+    local silverItemId = 174
+    local silverCount = 30000
+
+    migrate_yanziwu_treasure_silver_chest_flags()
+    set_flag(YANZIWU_TREASURE_SILVER_CHEST_FLAGS.started, true)
+
+    if get_flag(YANZIWU_TREASURE_SILVER_CHEST_FLAGS.rewardClaimed) then
+        ShowMessage("宝箱已经空了。")
+        return true
+    end
+
+    AddItem(silverItemId, silverCount)
+    set_flag(YANZIWU_TREASURE_SILVER_CHEST_FLAGS.rewardClaimed, true)
+    set_flag(YANZIWU_TREASURE_SILVER_CHEST_FLAGS.completed, true)
+    set_flag_int(YANZIWU_TREASURE_LEGACY_FLAGS.treasureTaken, 1)
+
+    -- Preserve the original 5202 chest behavior while moving reward state into
+    -- named QQZJ flags. This is only the existing silver chest, not full
+    -- 还施水阁 / 水阁宝箱 source coverage.
+    ModifyEvent(-2, -2, 0, 0, -1, -1, -1, -1, -1, -1, -2, -2, -2)
+    ShowMessage("获得银两三万。")
+    return true
+end
+
 local function run_abi_guidance()
     local Dialogue = dialogue()
     local rewardItemId = 3 -- 小还丹, a small existing starter healing item.
@@ -365,6 +416,7 @@ Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_QIUDI_GUARD] = run_protagonist_openi
 Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_FAMILY_BRIEFING] = run_protagonist_opening_family_briefing
 Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_BROTHER_RETURN] = run_protagonist_opening_brother_return
 Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_SHIJIAN_TRAINING] = run_protagonist_opening_shijian_training
+Quest.Handlers[QUEST_ID_YANZIWU_TREASURE_SILVER_CHEST] = run_yanziwu_treasure_silver_chest
 
 function JSHYL.QQZJ.Quest.Run(questId)
     local handler = JSHYL.QQZJ.Quest.Handlers and JSHYL.QQZJ.Quest.Handlers[questId]

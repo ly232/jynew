@@ -28,7 +28,7 @@ verified
 | Pages currently inventoried | 48 | seeded from visible start page and sitemap entries |
 | Pages extracted | 0 | no full TPR page extraction yet |
 | Page sections extracted | 1 | `主角剧情：开局` only |
-| Page sections partially implemented | 1 | `qqzj_protagonist_opening_arrival`, `qqzj_protagonist_opening_qiudi_guard`, `qqzj_protagonist_opening_family_briefing`, `qqzj_protagonist_opening_brother_return`, and `qqzj_protagonist_opening_shijian_training` only |
+| Page sections partially implemented | 1 | `qqzj_protagonist_opening_arrival`, `qqzj_protagonist_opening_qiudi_guard`, `qqzj_protagonist_opening_family_briefing`, `qqzj_protagonist_opening_brother_return`, `qqzj_protagonist_opening_shijian_training`, and `qqzj_yanziwu_treasure_silver_chest` only |
 | Pages implemented | 0 | Phase 2 slice excluded from TPR coverage |
 | Pages verified | 0 | no TPR page verified end to end yet |
 
@@ -50,7 +50,7 @@ verified
 |---|---|---|---|---|---|---|---|---|
 | 金书红颜录5 青青子衿 | https://tpr.inkit.cc/start | index | global | inventoried | none | none | none | navigation hub only |
 | 主角剧情 | https://tpr.inkit.cc/tpr5:主角剧情 | story_route | 主角 | inventoried | partial section extraction only | none | none | full page not extracted |
-| 主角剧情：开局 | https://tpr.inkit.cc/tpr5:主角剧情#开局 | story_section | 主角 | partially_implemented | docs/tpr_extraction/extractions/zhujuqinqing_opening.md | Phase 3C, TPR-006, TPR-008, TPR-009A, TPR-010A, TPR-012, TPR-014 implementation commits | none | implemented subsections: arrival, 秋荻托付/孟星魂 assignment flag, verified 九转熊蛇丸 reward, 二叔/三叔 narrative hooks for 杭州/开封, 大哥 return dialogue plus verified partial reward, 侍剑 training architecture refactor with battle 145 |
+| 主角剧情：开局 | https://tpr.inkit.cc/tpr5:主角剧情#开局 | story_section | 主角 | partially_implemented | docs/tpr_extraction/extractions/zhujuqinqing_opening.md | Phase 3C, TPR-006, TPR-008, TPR-009A, TPR-010A, TPR-012, TPR-014, TPR-016 implementation commits | none | implemented subsections: arrival, 秋荻托付/孟星魂 assignment flag, verified 九转熊蛇丸 reward, 二叔/三叔 narrative hooks for 杭州/开封, 大哥 return dialogue plus verified partial reward, 侍剑 training architecture refactor with battle 145, existing 燕子坞 silver chest refactor |
 | 越女剑 | https://tpr.inkit.cc/tpr5:越女剑 | book_route | 越女剑 | inventoried | none | none | none | prototype exists but not source-verified |
 | 逍遥御风 | https://tpr.inkit.cc/tpr5:逍遥御风 | route_chapter | 天龙八部 | inventoried | none | none | none | user-requested future line |
 | 侠客行 | https://tpr.inkit.cc/tpr5:侠客行 | book_route | 侠客行 | inventoried | none | none | none | user-requested future dependency |
