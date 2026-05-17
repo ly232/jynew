@@ -42,6 +42,7 @@ local PROTAGONIST_OPENING_QIUDI_GUARD_FLAGS = {
     dialogueSeen = "qqzj_protagonist_opening_qiudi_guard_dialogue_seen",
     mengxinghunAssigned = "qqzj_protagonist_opening_qiudi_guard_mengxinghun_assigned",
     rewardClaimed = "qqzj_protagonist_opening_qiudi_guard_reward_claimed",
+    toolRewardClaimed = "qqzj_protagonist_opening_qiudi_guard_tool_reward_claimed",
     completed = "qqzj_protagonist_opening_qiudi_guard_completed",
 }
 
@@ -50,6 +51,7 @@ local PROTAGONIST_OPENING_FAMILY_BRIEFING_FLAGS = {
     dialogueSeen = "qqzj_protagonist_opening_family_briefing_dialogue_seen",
     hangzhouHookUnlocked = "qqzj_protagonist_opening_family_briefing_hangzhou_hook_unlocked",
     kaifengHookUnlocked = "qqzj_protagonist_opening_family_briefing_kaifeng_hook_unlocked",
+    toolRewardClaimed = "qqzj_protagonist_opening_family_briefing_tool_reward_claimed",
     completed = "qqzj_protagonist_opening_family_briefing_completed",
 }
 
@@ -200,6 +202,7 @@ local function run_protagonist_opening_qiudi_guard()
     local Dialogue = dialogue()
     local bearSnakePillItemId = 16 -- 九转熊蛇丸, verified in TPR-007 item audit.
     local bearSnakePillCount = 10
+    local compassItemId = 205 -- 司南针, inert TPR opening tool item.
 
     if not get_flag(PROTAGONIST_OPENING_ARRIVAL_FLAGS.completed) then
         return Quest.Run(QUEST_ID_PROTAGONIST_OPENING_ARRIVAL)
@@ -208,6 +211,11 @@ local function run_protagonist_opening_qiudi_guard()
     set_flag(PROTAGONIST_OPENING_QIUDI_GUARD_FLAGS.started, true)
 
     if get_flag(PROTAGONIST_OPENING_QIUDI_GUARD_FLAGS.completed) then
+        if not get_flag(PROTAGONIST_OPENING_QIUDI_GUARD_FLAGS.toolRewardClaimed) then
+            AddItem(compassItemId, 1)
+            set_flag(PROTAGONIST_OPENING_QIUDI_GUARD_FLAGS.toolRewardClaimed, true)
+            Dialogue.Talk(336, "慕容秋荻：司南针如今也已备好，你既已受托出门，就一并带上。")
+        end
         return Quest.Run(QUEST_ID_PROTAGONIST_OPENING_FAMILY_BRIEFING)
     end
 
@@ -221,20 +229,29 @@ local function run_protagonist_opening_qiudi_guard()
         set_flag(PROTAGONIST_OPENING_QIUDI_GUARD_FLAGS.rewardClaimed, true)
     end
 
-    -- TODO: 司南针 is unresolved in current jshyl config. Do not grant it until
-    -- a real item is added or a placeholder such as 罗盘 id 182 is approved.
+    if not get_flag(PROTAGONIST_OPENING_QIUDI_GUARD_FLAGS.toolRewardClaimed) then
+        AddItem(compassItemId, 1)
+        set_flag(PROTAGONIST_OPENING_QIUDI_GUARD_FLAGS.toolRewardClaimed, true)
+    end
+
     -- Companion joining is intentionally deferred; this slice records only the
-    -- story assignment through save-backed flags.
+    -- story assignment through save-backed flags. 司南针 remains an inert story
+    -- tool until route-specific mechanics are implemented.
     set_flag(PROTAGONIST_OPENING_QIUDI_GUARD_FLAGS.dialogueSeen, true)
     set_flag(PROTAGONIST_OPENING_QIUDI_GUARD_FLAGS.mengxinghunAssigned, true)
     set_flag(PROTAGONIST_OPENING_QIUDI_GUARD_FLAGS.completed, true)
 
-    Dialogue.Talk(336, "慕容秋荻：这十枚九转熊蛇丸先带在身边。今日只到这里，下一步，再去听二叔三叔说说江湖门户。")
+    Dialogue.Talk(336, "慕容秋荻：这十枚九转熊蛇丸和司南针先带在身边。今日只到这里，下一步，再去听二叔三叔说说江湖门户。")
     return true
 end
 
 local function run_protagonist_opening_family_briefing()
     local Dialogue = dialogue()
+    local toolRewards = {
+        { itemId = 206, count = 1, name = "狼牙燕翎" },
+        { itemId = 207, count = 1, name = "秦皇照骨镜" },
+        { itemId = 208, count = 1, name = "洛阳铲" },
+    }
 
     if not get_flag(PROTAGONIST_OPENING_QIUDI_GUARD_FLAGS.completed) then
         return Quest.Run(QUEST_ID_PROTAGONIST_OPENING_QIUDI_GUARD)
@@ -243,6 +260,13 @@ local function run_protagonist_opening_family_briefing()
     set_flag(PROTAGONIST_OPENING_FAMILY_BRIEFING_FLAGS.started, true)
 
     if get_flag(PROTAGONIST_OPENING_FAMILY_BRIEFING_FLAGS.completed) then
+        if not get_flag(PROTAGONIST_OPENING_FAMILY_BRIEFING_FLAGS.toolRewardClaimed) then
+            for _, reward in ipairs(toolRewards) do
+                AddItem(reward.itemId, reward.count)
+            end
+            set_flag(PROTAGONIST_OPENING_FAMILY_BRIEFING_FLAGS.toolRewardClaimed, true)
+            Dialogue.Talk(336, "慕容秋荻：二叔三叔留下的狼牙燕翎、秦皇照骨镜、洛阳铲，今日补交给你。")
+        end
         return Quest.Run(QUEST_ID_PROTAGONIST_OPENING_BROTHER_RETURN)
     end
 
@@ -250,8 +274,17 @@ local function run_protagonist_opening_family_briefing()
     Dialogue.Talk(336, "慕容秋荻：杭州牵着南下的线，开封连着中原的局。你先记住这两个名字，不必急着启程。")
     Dialogue.Talk(0, "杭州、开封。我记下了。等门户与路线都安排妥当，再按他们的指点行事。")
 
+    if not get_flag(PROTAGONIST_OPENING_FAMILY_BRIEFING_FLAGS.toolRewardClaimed) then
+        for _, reward in ipairs(toolRewards) do
+            AddItem(reward.itemId, reward.count)
+        end
+        set_flag(PROTAGONIST_OPENING_FAMILY_BRIEFING_FLAGS.toolRewardClaimed, true)
+        Dialogue.Talk(336, "慕容秋荻：二叔三叔也给你留了三件行走用物：狼牙燕翎、秦皇照骨镜、洛阳铲。先收着，日后遇到对应门路再细用。")
+    end
+
     -- These are narrative hook flags only. They intentionally do not unlock
-    -- actual map travel, grant route tools, add companions, or edit configs.
+    -- actual map travel, add companions, or edit configs. The granted tools are
+    -- inert inventory/story items until later route mechanics are specified.
     set_flag(PROTAGONIST_OPENING_FAMILY_BRIEFING_FLAGS.dialogueSeen, true)
     set_flag(PROTAGONIST_OPENING_FAMILY_BRIEFING_FLAGS.hangzhouHookUnlocked, true)
     set_flag(PROTAGONIST_OPENING_FAMILY_BRIEFING_FLAGS.kaifengHookUnlocked, true)
