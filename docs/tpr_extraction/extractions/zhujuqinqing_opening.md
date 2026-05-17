@@ -271,6 +271,6 @@ implementation:
 
 ```text
 inventory status: partially_implemented for section "主角剧情：开局"
-implementation status: first subsection implemented: qqzj_protagonist_opening_arrival
+implementation status: partially implemented through TPR-017 checkpoint; see docs/tpr_extraction/TPR_017_OPENING_COVERAGE_CHECKPOINT.md
 verification status: not verified
 ```
