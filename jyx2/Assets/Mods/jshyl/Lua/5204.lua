@@ -1,3 +1,6 @@
-Talk(339, "阿碧：水阁里的书卷都已收拾妥当。侍剑姐姐在那边等着，能安排演武。");
-Talk(0, "正好，我也想试试开局的身手。");
+-- TPR 主角剧情 / 开局: true 还施水阁 entry trigger.
+-- Scene binding: jshyl_shuige_entry -> interactive event 5204.
+-- Keep numbered event files thin; named QQZJ quests own flags and state.
+
+JSHYL.QQZJ.Quest.Run("qqzj_protagonist_opening_shuige_entry")
 do return end;
