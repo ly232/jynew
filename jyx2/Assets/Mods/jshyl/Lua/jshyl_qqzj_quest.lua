@@ -8,6 +8,7 @@ JSHYL.QQZJ.Quest = JSHYL.QQZJ.Quest or {}
 local Quest = JSHYL.QQZJ.Quest
 local QUEST_ID_ABI_GUIDANCE = "qqzj_intro_abi_guidance"
 local QUEST_ID_PROTAGONIST_OPENING_ARRIVAL = "qqzj_protagonist_opening_arrival"
+local QUEST_ID_PROTAGONIST_OPENING_QIUDI_GUARD = "qqzj_protagonist_opening_qiudi_guard"
 
 local ABI_FLAGS = {
     started = "qqzj_intro_abi_guidance_started",
@@ -26,6 +27,13 @@ local PROTAGONIST_OPENING_ARRIVAL_FLAGS = {
     started = "qqzj_protagonist_opening_arrival_started",
     rewardClaimed = "qqzj_protagonist_opening_arrival_reward_claimed",
     completed = "qqzj_protagonist_opening_arrival_completed",
+}
+
+local PROTAGONIST_OPENING_QIUDI_GUARD_FLAGS = {
+    started = "qqzj_protagonist_opening_qiudi_guard_started",
+    dialogueSeen = "qqzj_protagonist_opening_qiudi_guard_dialogue_seen",
+    mengxinghunAssigned = "qqzj_protagonist_opening_qiudi_guard_mengxinghun_assigned",
+    completed = "qqzj_protagonist_opening_qiudi_guard_completed",
 }
 
 local PROTAGONIST_OPENING_LEGACY_FLAGS = {
@@ -93,9 +101,7 @@ local function run_protagonist_opening_arrival()
     set_flag(PROTAGONIST_OPENING_ARRIVAL_FLAGS.started, true)
 
     if get_flag(PROTAGONIST_OPENING_ARRIVAL_FLAGS.completed) then
-        Dialogue.Talk(336, "慕容秋荻：开局的盘缠已经给过你了。下一步，仍是先熟悉燕子坞，再往江南去。")
-        Dialogue.Talk(0, "我会记得。")
-        return true
+        return Quest.Run(QUEST_ID_PROTAGONIST_OPENING_QIUDI_GUARD)
     end
 
     Dialogue.Talk(336, "慕容秋荻：你既回了燕子坞，先收下这笔盘缠。江湖路远，银两不可短缺。")
@@ -113,6 +119,37 @@ local function run_protagonist_opening_arrival()
     set_flag(PROTAGONIST_OPENING_LEGACY_FLAGS.openingDone, true)
 
     Dialogue.Talk(336, "慕容秋荻：今日只说到这里。你先熟悉燕子坞，其余安排，我会一步一步交代。")
+    return true
+end
+
+local function run_protagonist_opening_qiudi_guard()
+    local Dialogue = dialogue()
+
+    if not get_flag(PROTAGONIST_OPENING_ARRIVAL_FLAGS.completed) then
+        return Quest.Run(QUEST_ID_PROTAGONIST_OPENING_ARRIVAL)
+    end
+
+    set_flag(PROTAGONIST_OPENING_QIUDI_GUARD_FLAGS.started, true)
+
+    if get_flag(PROTAGONIST_OPENING_QIUDI_GUARD_FLAGS.completed) then
+        Dialogue.Talk(336, "慕容秋荻：孟星魂已经领了托付。他暂且暗中照看你，待同行系统安排妥当，再正式随行。")
+        Dialogue.Talk(0, "有他在暗处，我心里也踏实些。")
+        return true
+    end
+
+    Dialogue.Talk(336, "慕容秋荻：你初涉江湖，空有志气还不够。燕子坞之外风浪不小，我会让孟星魂先护着你。")
+    Dialogue.Talk(0, "孟星魂？我听说他话不多，剑却极快。")
+    Dialogue.Talk(336, "慕容秋荻：正因如此，才适合做你的影子。你照旧自己走路，他只在必要时出手。")
+    Dialogue.Talk(335, "孟星魂：少主放心。路上若有人拦，我来出剑。")
+
+    -- TODO: Later slices should verify 司南针/九转熊蛇丸 item ids before
+    -- granting 秋荻 rewards. Companion joining is intentionally deferred; this
+    -- slice records only the story assignment through save-backed flags.
+    set_flag(PROTAGONIST_OPENING_QIUDI_GUARD_FLAGS.dialogueSeen, true)
+    set_flag(PROTAGONIST_OPENING_QIUDI_GUARD_FLAGS.mengxinghunAssigned, true)
+    set_flag(PROTAGONIST_OPENING_QIUDI_GUARD_FLAGS.completed, true)
+
+    Dialogue.Talk(336, "慕容秋荻：今日只到这里。下一步，再去听二叔三叔说说江湖门户。")
     return true
 end
 
@@ -178,6 +215,7 @@ end
 Quest.Handlers = Quest.Handlers or {}
 Quest.Handlers[QUEST_ID_ABI_GUIDANCE] = run_abi_guidance
 Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_ARRIVAL] = run_protagonist_opening_arrival
+Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_QIUDI_GUARD] = run_protagonist_opening_qiudi_guard
 
 function JSHYL.QQZJ.Quest.Run(questId)
     local handler = JSHYL.QQZJ.Quest.Handlers and JSHYL.QQZJ.Quest.Handlers[questId]
