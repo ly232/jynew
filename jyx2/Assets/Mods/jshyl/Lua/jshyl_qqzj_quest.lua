@@ -9,6 +9,7 @@ local Quest = JSHYL.QQZJ.Quest
 local QUEST_ID_ABI_GUIDANCE = "qqzj_intro_abi_guidance"
 local QUEST_ID_PROTAGONIST_OPENING_ARRIVAL = "qqzj_protagonist_opening_arrival"
 local QUEST_ID_PROTAGONIST_OPENING_QIUDI_GUARD = "qqzj_protagonist_opening_qiudi_guard"
+local QUEST_ID_PROTAGONIST_OPENING_MENGXINGHUN_JOIN = "qqzj_protagonist_opening_mengxinghun_join"
 local QUEST_ID_PROTAGONIST_OPENING_FAMILY_BRIEFING = "qqzj_protagonist_opening_family_briefing"
 local QUEST_ID_PROTAGONIST_OPENING_BROTHER_RETURN = "qqzj_protagonist_opening_brother_return"
 local QUEST_ID_PROTAGONIST_OPENING_SHUIGE_ENTRY_HINT = "qqzj_protagonist_opening_shuige_entry_hint"
@@ -44,6 +45,11 @@ local PROTAGONIST_OPENING_QIUDI_GUARD_FLAGS = {
     rewardClaimed = "qqzj_protagonist_opening_qiudi_guard_reward_claimed",
     toolRewardClaimed = "qqzj_protagonist_opening_qiudi_guard_tool_reward_claimed",
     completed = "qqzj_protagonist_opening_qiudi_guard_completed",
+}
+
+local PROTAGONIST_OPENING_MENGXINGHUN_JOIN_FLAGS = {
+    started = "qqzj_protagonist_opening_mengxinghun_join_started",
+    completed = "qqzj_protagonist_opening_mengxinghun_join_completed",
 }
 
 local PROTAGONIST_OPENING_FAMILY_BRIEFING_FLAGS = {
@@ -216,7 +222,7 @@ local function run_protagonist_opening_qiudi_guard()
             set_flag(PROTAGONIST_OPENING_QIUDI_GUARD_FLAGS.toolRewardClaimed, true)
             Dialogue.Talk(336, "慕容秋荻：司南针如今也已备好，你既已受托出门，就一并带上。")
         end
-        return Quest.Run(QUEST_ID_PROTAGONIST_OPENING_FAMILY_BRIEFING)
+        return Quest.Run(QUEST_ID_PROTAGONIST_OPENING_MENGXINGHUN_JOIN)
     end
 
     Dialogue.Talk(336, "慕容秋荻：你初涉江湖，空有志气还不够。燕子坞之外风浪不小，我会让孟星魂先护着你。")
@@ -245,6 +251,38 @@ local function run_protagonist_opening_qiudi_guard()
     return true
 end
 
+local function run_protagonist_opening_mengxinghun_join()
+    local Dialogue = dialogue()
+    local mengxinghunRoleId = 335
+
+    if not get_flag(PROTAGONIST_OPENING_QIUDI_GUARD_FLAGS.completed) then
+        return Quest.Run(QUEST_ID_PROTAGONIST_OPENING_QIUDI_GUARD)
+    end
+
+    set_flag(PROTAGONIST_OPENING_MENGXINGHUN_JOIN_FLAGS.started, true)
+
+    if get_flag(PROTAGONIST_OPENING_MENGXINGHUN_JOIN_FLAGS.completed) then
+        return Quest.Run(QUEST_ID_PROTAGONIST_OPENING_FAMILY_BRIEFING)
+    end
+
+    if InTeam(mengxinghunRoleId) then
+        Dialogue.Talk(335, "孟星魂：我已在队中。少主向前走便是。")
+        set_flag(PROTAGONIST_OPENING_MENGXINGHUN_JOIN_FLAGS.completed, true)
+        return true
+    end
+
+    if TeamIsFull() then
+        Dialogue.Talk(335, "孟星魂：队伍已满，我暂在暗处随行。少主若要我入队，先空出一个位置。")
+        return false
+    end
+
+    Dialogue.Talk(335, "孟星魂：秋荻姑娘有命，从今日起，我随少主同行。")
+    Join(mengxinghunRoleId)
+    set_flag(PROTAGONIST_OPENING_MENGXINGHUN_JOIN_FLAGS.completed, true)
+    Dialogue.Talk(0, "有你在，出门确实安心许多。")
+    return true
+end
+
 local function run_protagonist_opening_family_briefing()
     local Dialogue = dialogue()
     local toolRewards = {
@@ -253,8 +291,8 @@ local function run_protagonist_opening_family_briefing()
         { itemId = 208, count = 1, name = "洛阳铲" },
     }
 
-    if not get_flag(PROTAGONIST_OPENING_QIUDI_GUARD_FLAGS.completed) then
-        return Quest.Run(QUEST_ID_PROTAGONIST_OPENING_QIUDI_GUARD)
+    if not get_flag(PROTAGONIST_OPENING_MENGXINGHUN_JOIN_FLAGS.completed) then
+        return Quest.Run(QUEST_ID_PROTAGONIST_OPENING_MENGXINGHUN_JOIN)
     end
 
     set_flag(PROTAGONIST_OPENING_FAMILY_BRIEFING_FLAGS.started, true)
@@ -603,6 +641,7 @@ Quest.Handlers = Quest.Handlers or {}
 Quest.Handlers[QUEST_ID_ABI_GUIDANCE] = run_abi_guidance
 Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_ARRIVAL] = run_protagonist_opening_arrival
 Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_QIUDI_GUARD] = run_protagonist_opening_qiudi_guard
+Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_MENGXINGHUN_JOIN] = run_protagonist_opening_mengxinghun_join
 Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_FAMILY_BRIEFING] = run_protagonist_opening_family_briefing
 Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_BROTHER_RETURN] = run_protagonist_opening_brother_return
 Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_SHUIGE_ENTRY_HINT] = run_protagonist_opening_shuige_entry_hint
