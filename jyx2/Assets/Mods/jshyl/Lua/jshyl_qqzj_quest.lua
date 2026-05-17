@@ -33,6 +33,7 @@ local PROTAGONIST_OPENING_QIUDI_GUARD_FLAGS = {
     started = "qqzj_protagonist_opening_qiudi_guard_started",
     dialogueSeen = "qqzj_protagonist_opening_qiudi_guard_dialogue_seen",
     mengxinghunAssigned = "qqzj_protagonist_opening_qiudi_guard_mengxinghun_assigned",
+    rewardClaimed = "qqzj_protagonist_opening_qiudi_guard_reward_claimed",
     completed = "qqzj_protagonist_opening_qiudi_guard_completed",
 }
 
@@ -124,6 +125,8 @@ end
 
 local function run_protagonist_opening_qiudi_guard()
     local Dialogue = dialogue()
+    local bearSnakePillItemId = 16 -- 九转熊蛇丸, verified in TPR-007 item audit.
+    local bearSnakePillCount = 10
 
     if not get_flag(PROTAGONIST_OPENING_ARRIVAL_FLAGS.completed) then
         return Quest.Run(QUEST_ID_PROTAGONIST_OPENING_ARRIVAL)
@@ -133,6 +136,9 @@ local function run_protagonist_opening_qiudi_guard()
 
     if get_flag(PROTAGONIST_OPENING_QIUDI_GUARD_FLAGS.completed) then
         Dialogue.Talk(336, "慕容秋荻：孟星魂已经领了托付。他暂且暗中照看你，待同行系统安排妥当，再正式随行。")
+        if get_flag(PROTAGONIST_OPENING_QIUDI_GUARD_FLAGS.rewardClaimed) then
+            Dialogue.Talk(336, "慕容秋荻：九转熊蛇丸也已交给你了，莫要重复记账。")
+        end
         Dialogue.Talk(0, "有他在暗处，我心里也踏实些。")
         return true
     end
@@ -142,14 +148,20 @@ local function run_protagonist_opening_qiudi_guard()
     Dialogue.Talk(336, "慕容秋荻：正因如此，才适合做你的影子。你照旧自己走路，他只在必要时出手。")
     Dialogue.Talk(335, "孟星魂：少主放心。路上若有人拦，我来出剑。")
 
-    -- TODO: Later slices should verify 司南针/九转熊蛇丸 item ids before
-    -- granting 秋荻 rewards. Companion joining is intentionally deferred; this
-    -- slice records only the story assignment through save-backed flags.
+    if not get_flag(PROTAGONIST_OPENING_QIUDI_GUARD_FLAGS.rewardClaimed) then
+        AddItem(bearSnakePillItemId, bearSnakePillCount)
+        set_flag(PROTAGONIST_OPENING_QIUDI_GUARD_FLAGS.rewardClaimed, true)
+    end
+
+    -- TODO: 司南针 is unresolved in current jshyl config. Do not grant it until
+    -- a real item is added or a placeholder such as 罗盘 id 182 is approved.
+    -- Companion joining is intentionally deferred; this slice records only the
+    -- story assignment through save-backed flags.
     set_flag(PROTAGONIST_OPENING_QIUDI_GUARD_FLAGS.dialogueSeen, true)
     set_flag(PROTAGONIST_OPENING_QIUDI_GUARD_FLAGS.mengxinghunAssigned, true)
     set_flag(PROTAGONIST_OPENING_QIUDI_GUARD_FLAGS.completed, true)
 
-    Dialogue.Talk(336, "慕容秋荻：今日只到这里。下一步，再去听二叔三叔说说江湖门户。")
+    Dialogue.Talk(336, "慕容秋荻：这十枚九转熊蛇丸先带在身边。今日只到这里，下一步，再去听二叔三叔说说江湖门户。")
     return true
 end
 

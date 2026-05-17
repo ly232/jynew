@@ -50,7 +50,7 @@ verified
 |---|---|---|---|---|---|---|---|---|
 | 金书红颜录5 青青子衿 | https://tpr.inkit.cc/start | index | global | inventoried | none | none | none | navigation hub only |
 | 主角剧情 | https://tpr.inkit.cc/tpr5:主角剧情 | story_route | 主角 | inventoried | partial section extraction only | none | none | full page not extracted |
-| 主角剧情：开局 | https://tpr.inkit.cc/tpr5:主角剧情#开局 | story_section | 主角 | partially_implemented | docs/tpr_extraction/extractions/zhujuqinqing_opening.md | Phase 3C and TPR-006 implementation commits | none | implemented subsections: arrival, 秋荻托付/孟星魂 assignment flag |
+| 主角剧情：开局 | https://tpr.inkit.cc/tpr5:主角剧情#开局 | story_section | 主角 | partially_implemented | docs/tpr_extraction/extractions/zhujuqinqing_opening.md | Phase 3C, TPR-006, TPR-008 implementation commits | none | implemented subsections: arrival, 秋荻托付/孟星魂 assignment flag, verified 九转熊蛇丸 reward |
 | 越女剑 | https://tpr.inkit.cc/tpr5:越女剑 | book_route | 越女剑 | inventoried | none | none | none | prototype exists but not source-verified |
 | 逍遥御风 | https://tpr.inkit.cc/tpr5:逍遥御风 | route_chapter | 天龙八部 | inventoried | none | none | none | user-requested future line |
 | 侠客行 | https://tpr.inkit.cc/tpr5:侠客行 | book_route | 侠客行 | inventoried | none | none | none | user-requested future dependency |
