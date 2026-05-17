@@ -10,6 +10,7 @@ local QUEST_ID_ABI_GUIDANCE = "qqzj_intro_abi_guidance"
 local QUEST_ID_PROTAGONIST_OPENING_ARRIVAL = "qqzj_protagonist_opening_arrival"
 local QUEST_ID_PROTAGONIST_OPENING_QIUDI_GUARD = "qqzj_protagonist_opening_qiudi_guard"
 local QUEST_ID_PROTAGONIST_OPENING_FAMILY_BRIEFING = "qqzj_protagonist_opening_family_briefing"
+local QUEST_ID_PROTAGONIST_OPENING_BROTHER_RETURN = "qqzj_protagonist_opening_brother_return"
 
 local ABI_FLAGS = {
     started = "qqzj_intro_abi_guidance_started",
@@ -44,6 +45,13 @@ local PROTAGONIST_OPENING_FAMILY_BRIEFING_FLAGS = {
     hangzhouHookUnlocked = "qqzj_protagonist_opening_family_briefing_hangzhou_hook_unlocked",
     kaifengHookUnlocked = "qqzj_protagonist_opening_family_briefing_kaifeng_hook_unlocked",
     completed = "qqzj_protagonist_opening_family_briefing_completed",
+}
+
+local PROTAGONIST_OPENING_BROTHER_RETURN_FLAGS = {
+    started = "qqzj_protagonist_opening_brother_return_started",
+    dialogueSeen = "qqzj_protagonist_opening_brother_return_dialogue_seen",
+    rewardClaimed = "qqzj_protagonist_opening_brother_return_reward_claimed",
+    completed = "qqzj_protagonist_opening_brother_return_completed",
 }
 
 local PROTAGONIST_OPENING_LEGACY_FLAGS = {
@@ -179,9 +187,7 @@ local function run_protagonist_opening_family_briefing()
     set_flag(PROTAGONIST_OPENING_FAMILY_BRIEFING_FLAGS.started, true)
 
     if get_flag(PROTAGONIST_OPENING_FAMILY_BRIEFING_FLAGS.completed) then
-        Dialogue.Talk(336, "慕容秋荻：二叔三叔的交代你已经记下。杭州与开封只是线索，真正动身还要等地图门户安排妥当。")
-        Dialogue.Talk(0, "我会先把燕子坞的事理清，不急着乱闯。")
-        return true
+        return Quest.Run(QUEST_ID_PROTAGONIST_OPENING_BROTHER_RETURN)
     end
 
     Dialogue.Talk(336, "慕容秋荻：孟星魂的事已定。接下来，二叔三叔会替你说明外头的门路。")
@@ -196,6 +202,34 @@ local function run_protagonist_opening_family_briefing()
     set_flag(PROTAGONIST_OPENING_FAMILY_BRIEFING_FLAGS.completed, true)
 
     Dialogue.Talk(336, "慕容秋荻：今日只作铺垫。待二叔三叔的实位与杭州、开封地图补齐，再让你真正出门。")
+    return true
+end
+
+local function run_protagonist_opening_brother_return()
+    local Dialogue = dialogue()
+
+    if not get_flag(PROTAGONIST_OPENING_FAMILY_BRIEFING_FLAGS.completed) then
+        return Quest.Run(QUEST_ID_PROTAGONIST_OPENING_FAMILY_BRIEFING)
+    end
+
+    set_flag(PROTAGONIST_OPENING_BROTHER_RETURN_FLAGS.started, true)
+
+    if get_flag(PROTAGONIST_OPENING_BROTHER_RETURN_FLAGS.completed) then
+        Dialogue.Talk(336, "慕容秋荻：大哥归来的事已经说过。药材清单还在核验，暂不从账房支取。")
+        Dialogue.Talk(0, "明白。等药品条目对齐，再补入行囊。")
+        return true
+    end
+
+    Dialogue.Talk(336, "慕容秋荻：二叔三叔刚把外头的门户说完，大哥也该回府了。")
+    Dialogue.Talk(336, "慕容秋荻：他会替你备些伤药与内息丹药，但药名和账册编号还要再核一遍。")
+    Dialogue.Talk(0, "那就先记下大哥归来的安排。药材等核完再领，免得错拿。")
+
+    -- Dialogue-only slice. Do not grant 玉真散、九转灵宝丸, or any other
+    -- 大哥 reward until the remaining item ids have been audited.
+    set_flag(PROTAGONIST_OPENING_BROTHER_RETURN_FLAGS.dialogueSeen, true)
+    set_flag(PROTAGONIST_OPENING_BROTHER_RETURN_FLAGS.completed, true)
+
+    Dialogue.Talk(336, "慕容秋荻：如此甚好。等药材与还施水阁的门户都确认了，再继续下一步。")
     return true
 end
 
@@ -263,6 +297,7 @@ Quest.Handlers[QUEST_ID_ABI_GUIDANCE] = run_abi_guidance
 Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_ARRIVAL] = run_protagonist_opening_arrival
 Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_QIUDI_GUARD] = run_protagonist_opening_qiudi_guard
 Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_FAMILY_BRIEFING] = run_protagonist_opening_family_briefing
+Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_BROTHER_RETURN] = run_protagonist_opening_brother_return
 
 function JSHYL.QQZJ.Quest.Run(questId)
     local handler = JSHYL.QQZJ.Quest.Handlers and JSHYL.QQZJ.Quest.Handlers[questId]
