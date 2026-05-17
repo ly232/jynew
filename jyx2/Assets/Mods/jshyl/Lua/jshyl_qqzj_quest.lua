@@ -207,6 +207,10 @@ end
 
 local function run_protagonist_opening_brother_return()
     local Dialogue = dialogue()
+    local brotherReturnRewards = {
+        { itemId = 5, count = 20, name = "玉真散" },
+        { itemId = 14, count = 20, name = "九转灵宝丸" },
+    }
 
     if not get_flag(PROTAGONIST_OPENING_FAMILY_BRIEFING_FLAGS.completed) then
         return Quest.Run(QUEST_ID_PROTAGONIST_OPENING_FAMILY_BRIEFING)
@@ -215,21 +219,36 @@ local function run_protagonist_opening_brother_return()
     set_flag(PROTAGONIST_OPENING_BROTHER_RETURN_FLAGS.started, true)
 
     if get_flag(PROTAGONIST_OPENING_BROTHER_RETURN_FLAGS.completed) then
-        Dialogue.Talk(336, "慕容秋荻：大哥归来的事已经说过。药材清单还在核验，暂不从账房支取。")
-        Dialogue.Talk(0, "明白。等药品条目对齐，再补入行囊。")
+        if get_flag(PROTAGONIST_OPENING_BROTHER_RETURN_FLAGS.rewardClaimed) then
+            Dialogue.Talk(336, "慕容秋荻：大哥备下的玉真散与九转灵宝丸已经交给你了，账册不会重复支取。")
+            Dialogue.Talk(0, "我会妥善收着。其余药材等条目补齐后再说。")
+        else
+            Dialogue.Talk(336, "慕容秋荻：大哥归来的事已经说过。现已核准两味药材，可以先支给你。")
+            for _, reward in ipairs(brotherReturnRewards) do
+                AddItem(reward.itemId, reward.count)
+            end
+            set_flag(PROTAGONIST_OPENING_BROTHER_RETURN_FLAGS.rewardClaimed, true)
+            Dialogue.Talk(336, "慕容秋荻：玉真散二十份、九转灵宝丸二十份，先带在身边。")
+        end
         return true
     end
 
     Dialogue.Talk(336, "慕容秋荻：二叔三叔刚把外头的门户说完，大哥也该回府了。")
-    Dialogue.Talk(336, "慕容秋荻：他会替你备些伤药与内息丹药，但药名和账册编号还要再核一遍。")
-    Dialogue.Talk(0, "那就先记下大哥归来的安排。药材等核完再领，免得错拿。")
+    Dialogue.Talk(336, "慕容秋荻：他替你备了几味伤药与内息丹药，其中玉真散与九转灵宝丸已经对上账册。")
+    Dialogue.Talk(0, "那就先领这两味。其余药材等核完再补，免得错拿。")
 
-    -- Dialogue-only slice. Do not grant 玉真散、九转灵宝丸, or any other
-    -- 大哥 reward until the remaining item ids have been audited.
+    for _, reward in ipairs(brotherReturnRewards) do
+        AddItem(reward.itemId, reward.count)
+    end
+    set_flag(PROTAGONIST_OPENING_BROTHER_RETURN_FLAGS.rewardClaimed, true)
+
+    -- TODO: 金创药、少阳丹、人参养荣丸 are missing from current jshyl item
+    -- config. Do not grant substitutes until exact items or approved
+    -- placeholders are added in a config-enabled task.
     set_flag(PROTAGONIST_OPENING_BROTHER_RETURN_FLAGS.dialogueSeen, true)
     set_flag(PROTAGONIST_OPENING_BROTHER_RETURN_FLAGS.completed, true)
 
-    Dialogue.Talk(336, "慕容秋荻：如此甚好。等药材与还施水阁的门户都确认了，再继续下一步。")
+    Dialogue.Talk(336, "慕容秋荻：玉真散二十份、九转灵宝丸二十份，已经交给你。其余三味药暂且记缺。")
     return true
 end
 
