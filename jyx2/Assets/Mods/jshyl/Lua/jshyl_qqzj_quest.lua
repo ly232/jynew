@@ -14,6 +14,7 @@ local QUEST_ID_PROTAGONIST_OPENING_BROTHER_RETURN = "qqzj_protagonist_opening_br
 local QUEST_ID_PROTAGONIST_OPENING_SHUIGE_ENTRY_HINT = "qqzj_protagonist_opening_shuige_entry_hint"
 local QUEST_ID_PROTAGONIST_OPENING_SHUIGE_ENTRY = "qqzj_protagonist_opening_shuige_entry"
 local QUEST_ID_PROTAGONIST_OPENING_SHUIGE_INNER = "qqzj_protagonist_opening_shuige_inner"
+local QUEST_ID_PROTAGONIST_OPENING_SHUIGE_CENTER_CHEST = "qqzj_protagonist_opening_shuige_center_chest"
 local QUEST_ID_PROTAGONIST_OPENING_SHIJIAN_TRAINING = "qqzj_protagonist_opening_shijian_training"
 local QUEST_ID_YANZIWU_TREASURE_SILVER_CHEST = "qqzj_yanziwu_treasure_silver_chest"
 
@@ -76,6 +77,12 @@ local PROTAGONIST_OPENING_SHUIGE_INNER_FLAGS = {
     started = "qqzj_protagonist_opening_shuige_inner_started",
     dialogueSeen = "qqzj_protagonist_opening_shuige_inner_dialogue_seen",
     completed = "qqzj_protagonist_opening_shuige_inner_completed",
+}
+
+local PROTAGONIST_OPENING_SHUIGE_CENTER_CHEST_FLAGS = {
+    started = "qqzj_protagonist_opening_shuige_center_chest_started",
+    rewardClaimed = "qqzj_protagonist_opening_shuige_center_chest_reward_claimed",
+    completed = "qqzj_protagonist_opening_shuige_center_chest_completed",
 }
 
 local PROTAGONIST_OPENING_SHIJIAN_TRAINING_FLAGS = {
@@ -403,6 +410,32 @@ local function run_protagonist_opening_shuige_inner()
     return true
 end
 
+local function run_protagonist_opening_shuige_center_chest()
+    local Dialogue = dialogue()
+    local rewardItemId = 209 -- 海月清辉, inert TPR opening item added in TPR-029.
+    local rewardCount = 1
+
+    if not get_flag(PROTAGONIST_OPENING_SHUIGE_INNER_FLAGS.completed) then
+        Dialogue.Talk(337, "双儿：少主，水阁内侧还没有整理妥当。请先在内侧标记处完成入阁整理。")
+        return false
+    end
+
+    set_flag(PROTAGONIST_OPENING_SHUIGE_CENTER_CHEST_FLAGS.started, true)
+
+    if get_flag(PROTAGONIST_OPENING_SHUIGE_CENTER_CHEST_FLAGS.rewardClaimed) then
+        Dialogue.Talk(337, "双儿：少主，这只水阁箱箧已经清点过，海月清辉也已入账。")
+        Dialogue.Talk(0, "好。余下书阁藏品，等之后逐项整理。")
+        return true
+    end
+
+    Dialogue.Talk(337, "双儿：少主，这里先取一件清雅旧藏，名为海月清辉。")
+    AddItem(rewardItemId, rewardCount)
+    set_flag(PROTAGONIST_OPENING_SHUIGE_CENTER_CHEST_FLAGS.rewardClaimed, true)
+    set_flag(PROTAGONIST_OPENING_SHUIGE_CENTER_CHEST_FLAGS.completed, true)
+    Dialogue.Talk(337, "双儿：海月清辉已经登记。其余水阁宝箱、三千两旧例和暗器药材，待后续流程补齐。")
+    return true
+end
+
 local function run_protagonist_opening_shijian_training()
     local Dialogue = dialogue()
     local trainingBattleId = 145
@@ -542,6 +575,7 @@ Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_BROTHER_RETURN] = run_protagonist_op
 Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_SHUIGE_ENTRY_HINT] = run_protagonist_opening_shuige_entry_hint
 Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_SHUIGE_ENTRY] = run_protagonist_opening_shuige_entry
 Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_SHUIGE_INNER] = run_protagonist_opening_shuige_inner
+Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_SHUIGE_CENTER_CHEST] = run_protagonist_opening_shuige_center_chest
 Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_SHIJIAN_TRAINING] = run_protagonist_opening_shijian_training
 Quest.Handlers[QUEST_ID_YANZIWU_TREASURE_SILVER_CHEST] = run_yanziwu_treasure_silver_chest
 
