@@ -158,8 +158,8 @@ All rewards must be idempotent. Item ids must be verified against `jshyl` config
 | reward source | rewards/items | quantity | target flag | config status |
 |---|---|---:|---|---|
 | opening entry | 银子 | 10000 | `qqzj_protagonist_opening_arrival_reward_claimed` | money API/config behavior needs review |
-| 慕容秋荻 | 司南针 | 1 | `qqzj_protagonist_opening_qiudi_guard_reward_claimed` | item id TBD |
-| 慕容秋荻 | 九转熊蛇丸 | 10 | same as above | item id TBD |
+| 慕容秋荻 | 司南针 | 1 | `qqzj_protagonist_opening_qiudi_guard_reward_claimed` | missing in jshyl config as of TPR-007; possible placeholder `罗盘` id 182 if approved |
+| 慕容秋荻 | 九转熊蛇丸 | 10 | same as above | verified id 16 in `ItemConfig.lua` |
 | 二叔/三叔 | 狼牙燕翎 | 1 | `qqzj_protagonist_opening_family_briefing_tools_claimed` | item id TBD |
 | 二叔/三叔 | 秦皇照骨镜 | 1 | same as above | item id TBD |
 | 二叔/三叔 | 洛阳铲 | 1 | same as above | item id TBD |
@@ -209,7 +209,7 @@ dependencies:
 
 ## Unknowns Requiring Manual Review
 
-1. Exact item ids for all named TPR rewards in jshyl config.
+1. Exact item ids for all named TPR rewards in jshyl config. TPR-007 verified `九转熊蛇丸` as id 16 and did not find exact `司南针`.
 2. Money add/remove APIs and whether `AddItem` uses a silver item id or separate currency method.
 3. Current `52_yanziwu` scene layout: initial room, side room, 还施水阁, center room, 阿碧 room, exits.
 4. Existing NPC role ids/models for 慕容秋荻, 孟星魂, 二叔, 三叔, 大哥/慕容复, 阿朱, 阿碧, 双儿, 侍剑.
