@@ -9,6 +9,7 @@ local Quest = JSHYL.QQZJ.Quest
 local QUEST_ID_ABI_GUIDANCE = "qqzj_intro_abi_guidance"
 local QUEST_ID_PROTAGONIST_OPENING_ARRIVAL = "qqzj_protagonist_opening_arrival"
 local QUEST_ID_PROTAGONIST_OPENING_QIUDI_GUARD = "qqzj_protagonist_opening_qiudi_guard"
+local QUEST_ID_PROTAGONIST_OPENING_FAMILY_BRIEFING = "qqzj_protagonist_opening_family_briefing"
 
 local ABI_FLAGS = {
     started = "qqzj_intro_abi_guidance_started",
@@ -35,6 +36,14 @@ local PROTAGONIST_OPENING_QIUDI_GUARD_FLAGS = {
     mengxinghunAssigned = "qqzj_protagonist_opening_qiudi_guard_mengxinghun_assigned",
     rewardClaimed = "qqzj_protagonist_opening_qiudi_guard_reward_claimed",
     completed = "qqzj_protagonist_opening_qiudi_guard_completed",
+}
+
+local PROTAGONIST_OPENING_FAMILY_BRIEFING_FLAGS = {
+    started = "qqzj_protagonist_opening_family_briefing_started",
+    dialogueSeen = "qqzj_protagonist_opening_family_briefing_dialogue_seen",
+    hangzhouHookUnlocked = "qqzj_protagonist_opening_family_briefing_hangzhou_hook_unlocked",
+    kaifengHookUnlocked = "qqzj_protagonist_opening_family_briefing_kaifeng_hook_unlocked",
+    completed = "qqzj_protagonist_opening_family_briefing_completed",
 }
 
 local PROTAGONIST_OPENING_LEGACY_FLAGS = {
@@ -135,12 +144,7 @@ local function run_protagonist_opening_qiudi_guard()
     set_flag(PROTAGONIST_OPENING_QIUDI_GUARD_FLAGS.started, true)
 
     if get_flag(PROTAGONIST_OPENING_QIUDI_GUARD_FLAGS.completed) then
-        Dialogue.Talk(336, "慕容秋荻：孟星魂已经领了托付。他暂且暗中照看你，待同行系统安排妥当，再正式随行。")
-        if get_flag(PROTAGONIST_OPENING_QIUDI_GUARD_FLAGS.rewardClaimed) then
-            Dialogue.Talk(336, "慕容秋荻：九转熊蛇丸也已交给你了，莫要重复记账。")
-        end
-        Dialogue.Talk(0, "有他在暗处，我心里也踏实些。")
-        return true
+        return Quest.Run(QUEST_ID_PROTAGONIST_OPENING_FAMILY_BRIEFING)
     end
 
     Dialogue.Talk(336, "慕容秋荻：你初涉江湖，空有志气还不够。燕子坞之外风浪不小，我会让孟星魂先护着你。")
@@ -162,6 +166,36 @@ local function run_protagonist_opening_qiudi_guard()
     set_flag(PROTAGONIST_OPENING_QIUDI_GUARD_FLAGS.completed, true)
 
     Dialogue.Talk(336, "慕容秋荻：这十枚九转熊蛇丸先带在身边。今日只到这里，下一步，再去听二叔三叔说说江湖门户。")
+    return true
+end
+
+local function run_protagonist_opening_family_briefing()
+    local Dialogue = dialogue()
+
+    if not get_flag(PROTAGONIST_OPENING_QIUDI_GUARD_FLAGS.completed) then
+        return Quest.Run(QUEST_ID_PROTAGONIST_OPENING_QIUDI_GUARD)
+    end
+
+    set_flag(PROTAGONIST_OPENING_FAMILY_BRIEFING_FLAGS.started, true)
+
+    if get_flag(PROTAGONIST_OPENING_FAMILY_BRIEFING_FLAGS.completed) then
+        Dialogue.Talk(336, "慕容秋荻：二叔三叔的交代你已经记下。杭州与开封只是线索，真正动身还要等地图门户安排妥当。")
+        Dialogue.Talk(0, "我会先把燕子坞的事理清，不急着乱闯。")
+        return true
+    end
+
+    Dialogue.Talk(336, "慕容秋荻：孟星魂的事已定。接下来，二叔三叔会替你说明外头的门路。")
+    Dialogue.Talk(336, "慕容秋荻：杭州牵着南下的线，开封连着中原的局。你先记住这两个名字，不必急着启程。")
+    Dialogue.Talk(0, "杭州、开封。我记下了。等门户与路线都安排妥当，再按他们的指点行事。")
+
+    -- These are narrative hook flags only. They intentionally do not unlock
+    -- actual map travel, grant route tools, add companions, or edit configs.
+    set_flag(PROTAGONIST_OPENING_FAMILY_BRIEFING_FLAGS.dialogueSeen, true)
+    set_flag(PROTAGONIST_OPENING_FAMILY_BRIEFING_FLAGS.hangzhouHookUnlocked, true)
+    set_flag(PROTAGONIST_OPENING_FAMILY_BRIEFING_FLAGS.kaifengHookUnlocked, true)
+    set_flag(PROTAGONIST_OPENING_FAMILY_BRIEFING_FLAGS.completed, true)
+
+    Dialogue.Talk(336, "慕容秋荻：今日只作铺垫。待二叔三叔的实位与杭州、开封地图补齐，再让你真正出门。")
     return true
 end
 
@@ -228,6 +262,7 @@ Quest.Handlers = Quest.Handlers or {}
 Quest.Handlers[QUEST_ID_ABI_GUIDANCE] = run_abi_guidance
 Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_ARRIVAL] = run_protagonist_opening_arrival
 Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_QIUDI_GUARD] = run_protagonist_opening_qiudi_guard
+Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_FAMILY_BRIEFING] = run_protagonist_opening_family_briefing
 
 function JSHYL.QQZJ.Quest.Run(questId)
     local handler = JSHYL.QQZJ.Quest.Handlers and JSHYL.QQZJ.Quest.Handlers[questId]
