@@ -11,6 +11,7 @@ local QUEST_ID_PROTAGONIST_OPENING_ARRIVAL = "qqzj_protagonist_opening_arrival"
 local QUEST_ID_PROTAGONIST_OPENING_QIUDI_GUARD = "qqzj_protagonist_opening_qiudi_guard"
 local QUEST_ID_PROTAGONIST_OPENING_FAMILY_BRIEFING = "qqzj_protagonist_opening_family_briefing"
 local QUEST_ID_PROTAGONIST_OPENING_BROTHER_RETURN = "qqzj_protagonist_opening_brother_return"
+local QUEST_ID_PROTAGONIST_OPENING_SHUIGE_ENTRY_HINT = "qqzj_protagonist_opening_shuige_entry_hint"
 local QUEST_ID_PROTAGONIST_OPENING_SHIJIAN_TRAINING = "qqzj_protagonist_opening_shijian_training"
 local QUEST_ID_YANZIWU_TREASURE_SILVER_CHEST = "qqzj_yanziwu_treasure_silver_chest"
 
@@ -54,6 +55,12 @@ local PROTAGONIST_OPENING_BROTHER_RETURN_FLAGS = {
     dialogueSeen = "qqzj_protagonist_opening_brother_return_dialogue_seen",
     rewardClaimed = "qqzj_protagonist_opening_brother_return_reward_claimed",
     completed = "qqzj_protagonist_opening_brother_return_completed",
+}
+
+local PROTAGONIST_OPENING_SHUIGE_ENTRY_HINT_FLAGS = {
+    started = "qqzj_protagonist_opening_shuige_entry_hint_started",
+    dialogueSeen = "qqzj_protagonist_opening_shuige_entry_hint_dialogue_seen",
+    completed = "qqzj_protagonist_opening_shuige_entry_hint_completed",
 }
 
 local PROTAGONIST_OPENING_SHIJIAN_TRAINING_FLAGS = {
@@ -279,6 +286,36 @@ local function run_protagonist_opening_brother_return()
     return true
 end
 
+local function run_protagonist_opening_shuige_entry_hint()
+    local Dialogue = dialogue()
+
+    if not get_flag(PROTAGONIST_OPENING_BROTHER_RETURN_FLAGS.completed) then
+        Dialogue.Talk(338, "阿朱：少主，水阁里的事不急。先去听秋荻姑娘把大哥归来的安排说完。")
+        Dialogue.Talk(0, "也好。等府里的开局安排理清，我再来问你水阁。")
+        return false
+    end
+
+    set_flag(PROTAGONIST_OPENING_SHUIGE_ENTRY_HINT_FLAGS.started, true)
+
+    if get_flag(PROTAGONIST_OPENING_SHUIGE_ENTRY_HINT_FLAGS.completed) then
+        Dialogue.Talk(338, "阿朱：少主，水阁入口、双儿相迎、三千两规矩，我都已经说过了。真正入阁还要等场景机关补齐。")
+        Dialogue.Talk(0, "我记得。现在先当作行前提示，不动水阁宝箱。")
+        return true
+    end
+
+    Dialogue.Talk(338, "阿朱：少主若要正式启程，按规矩该先入还施水阁。双儿会在水阁口迎你，替你整理随身物件。")
+    Dialogue.Talk(338, "阿朱：旧例还要支出三千两银子，才算过了入阁这一关。眼下水阁入口机关尚未实装，我先把规矩说清。")
+    Dialogue.Talk(0, "也就是说，今日只记下还施水阁的入口提示，不收银两，也不开宝箱。")
+    Dialogue.Talk(338, "阿朱：正是。等真正的水阁入口和宝箱位置绑定好，再让少主按原流程入阁。")
+
+    -- TODO: Implement true 还施水阁 scene-entry behavior on a real entry
+    -- trigger later. That future slice should verify the -3000 silver API,
+    -- handle 阿朱/双儿 entry flow, and keep 水阁宝箱 rewards separate.
+    set_flag(PROTAGONIST_OPENING_SHUIGE_ENTRY_HINT_FLAGS.dialogueSeen, true)
+    set_flag(PROTAGONIST_OPENING_SHUIGE_ENTRY_HINT_FLAGS.completed, true)
+    return true
+end
+
 local function run_protagonist_opening_shijian_training()
     local Dialogue = dialogue()
     local trainingBattleId = 145
@@ -415,6 +452,7 @@ Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_ARRIVAL] = run_protagonist_opening_a
 Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_QIUDI_GUARD] = run_protagonist_opening_qiudi_guard
 Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_FAMILY_BRIEFING] = run_protagonist_opening_family_briefing
 Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_BROTHER_RETURN] = run_protagonist_opening_brother_return
+Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_SHUIGE_ENTRY_HINT] = run_protagonist_opening_shuige_entry_hint
 Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_SHIJIAN_TRAINING] = run_protagonist_opening_shijian_training
 Quest.Handlers[QUEST_ID_YANZIWU_TREASURE_SILVER_CHEST] = run_yanziwu_treasure_silver_chest
 
