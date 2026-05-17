@@ -20052,7 +20052,7 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   m_EventTargets:
   - {fileID: 798001875}
-  m_InteractiveEventId: 5204
+  m_InteractiveEventId: 5206
   m_UseItemEventId: -1
   m_EnterEventId: -1
 --- !u!65 &520401003

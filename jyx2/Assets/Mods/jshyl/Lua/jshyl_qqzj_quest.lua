@@ -13,6 +13,7 @@ local QUEST_ID_PROTAGONIST_OPENING_FAMILY_BRIEFING = "qqzj_protagonist_opening_f
 local QUEST_ID_PROTAGONIST_OPENING_BROTHER_RETURN = "qqzj_protagonist_opening_brother_return"
 local QUEST_ID_PROTAGONIST_OPENING_SHUIGE_ENTRY_HINT = "qqzj_protagonist_opening_shuige_entry_hint"
 local QUEST_ID_PROTAGONIST_OPENING_SHUIGE_ENTRY = "qqzj_protagonist_opening_shuige_entry"
+local QUEST_ID_PROTAGONIST_OPENING_SHUIGE_INNER = "qqzj_protagonist_opening_shuige_inner"
 local QUEST_ID_PROTAGONIST_OPENING_SHIJIAN_TRAINING = "qqzj_protagonist_opening_shijian_training"
 local QUEST_ID_YANZIWU_TREASURE_SILVER_CHEST = "qqzj_yanziwu_treasure_silver_chest"
 
@@ -69,6 +70,12 @@ local PROTAGONIST_OPENING_SHUIGE_ENTRY_FLAGS = {
     unlocked = "qqzj_protagonist_opening_shuige_entry_unlocked",
     innerMarkerUnlocked = "qqzj_protagonist_opening_shuige_inner_marker_unlocked",
     completed = "qqzj_protagonist_opening_shuige_entry_completed",
+}
+
+local PROTAGONIST_OPENING_SHUIGE_INNER_FLAGS = {
+    started = "qqzj_protagonist_opening_shuige_inner_started",
+    dialogueSeen = "qqzj_protagonist_opening_shuige_inner_dialogue_seen",
+    completed = "qqzj_protagonist_opening_shuige_inner_completed",
 }
 
 local PROTAGONIST_OPENING_SHIJIAN_TRAINING_FLAGS = {
@@ -368,6 +375,34 @@ local function run_protagonist_opening_shuige_entry()
     return true
 end
 
+local function run_protagonist_opening_shuige_inner()
+    local Dialogue = dialogue()
+
+    if not get_flag(PROTAGONIST_OPENING_SHUIGE_ENTRY_FLAGS.innerMarkerUnlocked) then
+        Dialogue.Talk(337, "双儿：少主，还施水阁内室尚未开出。请先从入口处确认入阁。")
+        return false
+    end
+
+    set_flag(PROTAGONIST_OPENING_SHUIGE_INNER_FLAGS.started, true)
+
+    if get_flag(PROTAGONIST_OPENING_SHUIGE_INNER_FLAGS.completed) then
+        Dialogue.Talk(337, "双儿：少主，水阁内侧已经整理过。今日暂不动箱箧，也不结算三千两银子。")
+        Dialogue.Talk(0, "等宝箱与银两流程补齐，再按旧例重开清点。")
+        return true
+    end
+
+    Dialogue.Talk(337, "双儿：少主，已入还施水阁内侧。我先替您把随身物件重新登记，免得之后出门遗漏。")
+    Dialogue.Talk(0, "先记下这一步。宝箱、三千两银子和真正的水阁奖励，都等后续流程补齐。")
+    Dialogue.Talk(337, "双儿：是。水阁内侧已整理完毕，之后可在这里接入箱箧与行装奖励。")
+
+    -- TODO: Bind future 水阁宝箱 events from this inner marker stage. Do not
+    -- grant chest rewards or deduct silver until exact item ids and money
+    -- behavior are verified.
+    set_flag(PROTAGONIST_OPENING_SHUIGE_INNER_FLAGS.dialogueSeen, true)
+    set_flag(PROTAGONIST_OPENING_SHUIGE_INNER_FLAGS.completed, true)
+    return true
+end
+
 local function run_protagonist_opening_shijian_training()
     local Dialogue = dialogue()
     local trainingBattleId = 145
@@ -506,6 +541,7 @@ Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_FAMILY_BRIEFING] = run_protagonist_o
 Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_BROTHER_RETURN] = run_protagonist_opening_brother_return
 Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_SHUIGE_ENTRY_HINT] = run_protagonist_opening_shuige_entry_hint
 Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_SHUIGE_ENTRY] = run_protagonist_opening_shuige_entry
+Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_SHUIGE_INNER] = run_protagonist_opening_shuige_inner
 Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_SHIJIAN_TRAINING] = run_protagonist_opening_shijian_training
 Quest.Handlers[QUEST_ID_YANZIWU_TREASURE_SILVER_CHEST] = run_yanziwu_treasure_silver_chest
 
