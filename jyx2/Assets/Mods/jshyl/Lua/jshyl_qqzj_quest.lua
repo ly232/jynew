@@ -7,6 +7,7 @@ JSHYL.QQZJ.Quest = JSHYL.QQZJ.Quest or {}
 
 local Quest = JSHYL.QQZJ.Quest
 local QUEST_ID_ABI_GUIDANCE = "qqzj_intro_abi_guidance"
+local QUEST_ID_PROTAGONIST_OPENING_ARRIVAL = "qqzj_protagonist_opening_arrival"
 
 local ABI_FLAGS = {
     started = "qqzj_intro_abi_guidance_started",
@@ -19,6 +20,16 @@ local ABI_LEGACY_FLAGS = {
     acknowledged = "qqzj_phase2a_abi_intro_ack",
     rewardClaimed = "qqzj_phase2b_abi_reward_claimed",
     sparringWon = "qqzj_phase2c_abi_sparring_won",
+}
+
+local PROTAGONIST_OPENING_ARRIVAL_FLAGS = {
+    started = "qqzj_protagonist_opening_arrival_started",
+    rewardClaimed = "qqzj_protagonist_opening_arrival_reward_claimed",
+    completed = "qqzj_protagonist_opening_arrival_completed",
+}
+
+local PROTAGONIST_OPENING_LEGACY_FLAGS = {
+    openingDone = "jshyl_opening_done",
 }
 
 local function flags()
@@ -60,6 +71,49 @@ local function set_abi_stage(flagKey, value, legacyFlagKey)
     if legacyFlagKey then
         set_flag(legacyFlagKey, value)
     end
+end
+
+local function migrate_protagonist_opening_arrival_flags()
+    -- Preserve saves from the older ad hoc 5200.lua opening event.
+    -- If that flag is already set, treat this first TPR subsection as done
+    -- and do not grant starter silver again.
+    if get_flag(PROTAGONIST_OPENING_LEGACY_FLAGS.openingDone) then
+        set_flag(PROTAGONIST_OPENING_ARRIVAL_FLAGS.started, true)
+        set_flag(PROTAGONIST_OPENING_ARRIVAL_FLAGS.rewardClaimed, true)
+        set_flag(PROTAGONIST_OPENING_ARRIVAL_FLAGS.completed, true)
+    end
+end
+
+local function run_protagonist_opening_arrival()
+    local Dialogue = dialogue()
+    local silverItemId = 174 -- 银两. TODO: confirm whether a dedicated money API is preferred.
+    local startingSilver = 10000
+
+    migrate_protagonist_opening_arrival_flags()
+    set_flag(PROTAGONIST_OPENING_ARRIVAL_FLAGS.started, true)
+
+    if get_flag(PROTAGONIST_OPENING_ARRIVAL_FLAGS.completed) then
+        Dialogue.Talk(336, "慕容秋荻：开局的盘缠已经给过你了。下一步，仍是先熟悉燕子坞，再往江南去。")
+        Dialogue.Talk(0, "我会记得。")
+        return true
+    end
+
+    Dialogue.Talk(336, "慕容秋荻：你既回了燕子坞，先收下这笔盘缠。江湖路远，银两不可短缺。")
+    Dialogue.Talk(0, "我明白。先在燕子坞站稳脚跟，再出门见这方江湖。")
+
+    if not get_flag(PROTAGONIST_OPENING_ARRIVAL_FLAGS.rewardClaimed) then
+        AddItem(silverItemId, startingSilver)
+        set_flag(PROTAGONIST_OPENING_ARRIVAL_FLAGS.rewardClaimed, true)
+    end
+
+    -- TODO: Later slices should implement 慕容秋荻托付孟星魂, 杭州/开封 hooks,
+    -- and the family briefing. This slice deliberately avoids companions,
+    -- route locks, and extra maps.
+    set_flag(PROTAGONIST_OPENING_ARRIVAL_FLAGS.completed, true)
+    set_flag(PROTAGONIST_OPENING_LEGACY_FLAGS.openingDone, true)
+
+    Dialogue.Talk(336, "慕容秋荻：今日只说到这里。你先熟悉燕子坞，其余安排，我会一步一步交代。")
+    return true
 end
 
 local function run_abi_guidance()
@@ -123,6 +177,7 @@ end
 
 Quest.Handlers = Quest.Handlers or {}
 Quest.Handlers[QUEST_ID_ABI_GUIDANCE] = run_abi_guidance
+Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_ARRIVAL] = run_protagonist_opening_arrival
 
 function JSHYL.QQZJ.Quest.Run(questId)
     local handler = JSHYL.QQZJ.Quest.Handlers and JSHYL.QQZJ.Quest.Handlers[questId]

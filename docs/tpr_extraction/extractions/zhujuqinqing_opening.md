@@ -270,7 +270,7 @@ implementation:
 ## Coverage Status
 
 ```text
-inventory status: extracted for section "主角剧情：开局"
-implementation status: not implemented
+inventory status: partially_implemented for section "主角剧情：开局"
+implementation status: first subsection implemented: qqzj_protagonist_opening_arrival
 verification status: not verified
 ```
