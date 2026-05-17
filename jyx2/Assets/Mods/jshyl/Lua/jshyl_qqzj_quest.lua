@@ -67,6 +67,7 @@ local PROTAGONIST_OPENING_SHUIGE_ENTRY_HINT_FLAGS = {
 local PROTAGONIST_OPENING_SHUIGE_ENTRY_FLAGS = {
     started = "qqzj_protagonist_opening_shuige_entry_started",
     unlocked = "qqzj_protagonist_opening_shuige_entry_unlocked",
+    innerMarkerUnlocked = "qqzj_protagonist_opening_shuige_inner_marker_unlocked",
     completed = "qqzj_protagonist_opening_shuige_entry_completed",
 }
 
@@ -325,6 +326,7 @@ end
 
 local function run_protagonist_opening_shuige_entry()
     local Dialogue = dialogue()
+    local innerMarkerFlag = PROTAGONIST_OPENING_SHUIGE_ENTRY_FLAGS.innerMarkerUnlocked
 
     if not get_flag(PROTAGONIST_OPENING_SHUIGE_ENTRY_HINT_FLAGS.completed) then
         Dialogue.Talk(337, "双儿：少主，还施水阁入口已经收拾出来了，只是阿朱姐姐还没有把入阁规矩交代清楚。")
@@ -335,6 +337,14 @@ local function run_protagonist_opening_shuige_entry()
     set_flag(PROTAGONIST_OPENING_SHUIGE_ENTRY_FLAGS.started, true)
 
     if get_flag(PROTAGONIST_OPENING_SHUIGE_ENTRY_FLAGS.completed) then
+        if not get_flag(innerMarkerFlag) then
+            set_flag(innerMarkerFlag, true)
+            if type(jyx2_FixMapObject) == "function" then
+                jyx2_FixMapObject(innerMarkerFlag, "1")
+            elseif JSHYL.QQZJ.Scene and JSHYL.QQZJ.Scene.Replace then
+                JSHYL.QQZJ.Scene.Replace("Triggers/jshyl_shuige_inner_marker", true)
+            end
+        end
         Dialogue.Talk(337, "双儿：少主，水阁入口已经记下。今日仍只作入阁确认，不动宝箱，也不收银两。")
         Dialogue.Talk(0, "明白。等真正的水阁房间和宝箱流程补齐，再按旧例办理。")
         return true
@@ -346,8 +356,14 @@ local function run_protagonist_opening_shuige_entry()
 
     -- TODO: Future slice should implement actual teleport/room-entry behavior,
     -- verify the -3000 silver flow, and keep 水阁宝箱 rewards in a separate
-    -- idempotent quest.
+    -- idempotent quest bound from the inner marker.
     set_flag(PROTAGONIST_OPENING_SHUIGE_ENTRY_FLAGS.unlocked, true)
+    set_flag(innerMarkerFlag, true)
+    if type(jyx2_FixMapObject) == "function" then
+        jyx2_FixMapObject(innerMarkerFlag, "1")
+    elseif JSHYL.QQZJ.Scene and JSHYL.QQZJ.Scene.Replace then
+        JSHYL.QQZJ.Scene.Replace("Triggers/jshyl_shuige_inner_marker", true)
+    end
     set_flag(PROTAGONIST_OPENING_SHUIGE_ENTRY_FLAGS.completed, true)
     return true
 end
