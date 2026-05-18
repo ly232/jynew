@@ -78,6 +78,10 @@ local PROTAGONIST_OPENING_SHUIGE_ENTRY_FLAGS = {
     started = "qqzj_protagonist_opening_shuige_entry_started",
     unlocked = "qqzj_protagonist_opening_shuige_entry_unlocked",
     innerMarkerUnlocked = "qqzj_protagonist_opening_shuige_inner_marker_unlocked",
+    insufficientSilver = "qqzj_protagonist_opening_shuige_entry_insufficient_silver",
+    paid = "qqzj_protagonist_opening_shuige_entry_paid",
+    legacyCostWaived = "qqzj_protagonist_opening_shuige_entry_legacy_cost_waived",
+    costResolved = "qqzj_protagonist_opening_shuige_entry_cost_resolved",
     completed = "qqzj_protagonist_opening_shuige_entry_completed",
 }
 
@@ -409,11 +413,43 @@ local function run_protagonist_opening_shuige_entry_hint()
     return true
 end
 
+local function unlock_shuige_inner_marker(innerMarkerFlag)
+    set_flag(innerMarkerFlag, true)
+    if type(jyx2_FixMapObject) == "function" then
+        jyx2_FixMapObject(innerMarkerFlag, "1")
+    elseif JSHYL.QQZJ.Scene and JSHYL.QQZJ.Scene.Replace then
+        JSHYL.QQZJ.Scene.Replace("Triggers/jshyl_shuige_inner_marker", true)
+    end
+end
+
+local function migrate_shuige_entry_cost_flags()
+    local flags = PROTAGONIST_OPENING_SHUIGE_ENTRY_FLAGS
+
+    if get_flag(flags.costResolved) then
+        return
+    end
+
+    -- TPR-039B adds the -3000 银两 entry cost after earlier slices already
+    -- allowed entry/inner/chest progress. Preserve those saves and never
+    -- retroactively charge players who passed the old no-cost gate.
+    if get_flag(flags.completed)
+        or get_flag(flags.innerMarkerUnlocked)
+        or get_flag(PROTAGONIST_OPENING_SHUIGE_INNER_FLAGS.completed)
+        or get_flag(PROTAGONIST_OPENING_SHUIGE_CENTER_CHEST_FLAGS.rewardClaimed) then
+        set_flag(flags.legacyCostWaived, true)
+        set_flag(flags.costResolved, true)
+    end
+end
+
 local function run_protagonist_opening_shuige_entry()
     local Dialogue = dialogue()
     local innerMarkerFlag = PROTAGONIST_OPENING_SHUIGE_ENTRY_FLAGS.innerMarkerUnlocked
+    local silverItemId = 174 -- 银两 / MONEY_ID.
+    local silverCost = 3000
 
-    if not get_flag(PROTAGONIST_OPENING_SHUIGE_ENTRY_HINT_FLAGS.completed) then
+    migrate_shuige_entry_cost_flags()
+    if not get_flag(PROTAGONIST_OPENING_SHUIGE_ENTRY_HINT_FLAGS.completed)
+        and not get_flag(PROTAGONIST_OPENING_SHUIGE_ENTRY_FLAGS.costResolved) then
         Dialogue.Talk(337, "双儿：少主，还施水阁入口已经收拾出来了，只是阿朱姐姐还没有把入阁规矩交代清楚。")
         Dialogue.Talk(0, "那我先去问阿朱。水阁入口等规矩说清后再进。")
         return false
@@ -423,32 +459,40 @@ local function run_protagonist_opening_shuige_entry()
 
     if get_flag(PROTAGONIST_OPENING_SHUIGE_ENTRY_FLAGS.completed) then
         if not get_flag(innerMarkerFlag) then
-            set_flag(innerMarkerFlag, true)
-            if type(jyx2_FixMapObject) == "function" then
-                jyx2_FixMapObject(innerMarkerFlag, "1")
-            elseif JSHYL.QQZJ.Scene and JSHYL.QQZJ.Scene.Replace then
-                JSHYL.QQZJ.Scene.Replace("Triggers/jshyl_shuige_inner_marker", true)
-            end
+            unlock_shuige_inner_marker(innerMarkerFlag)
         end
-        Dialogue.Talk(337, "双儿：少主，水阁入口已经记下。今日仍只作入阁确认，不动宝箱，也不收银两。")
-        Dialogue.Talk(0, "明白。等真正的水阁房间和宝箱流程补齐，再按旧例办理。")
+        if get_flag(PROTAGONIST_OPENING_SHUIGE_ENTRY_FLAGS.legacyCostWaived) then
+            Dialogue.Talk(337, "双儿：少主，水阁入口已经记下。旧时入阁账目已按既有存档免收三千两。")
+        else
+            Dialogue.Talk(337, "双儿：少主，水阁入口已经记下，三千两入阁银也已结清。")
+        end
+        Dialogue.Talk(0, "明白。后续水阁房间和宝箱流程，再按旧例逐项办理。")
         return true
     end
 
     Dialogue.Talk(337, "双儿：少主，这里便是还施水阁入口。阿朱姐姐说过，入阁前要先整理随身物件，旧例还要支出三千两。")
-    Dialogue.Talk(0, "今日先确认入口。银两、宝箱和真正入阁移动，都等机关补齐后再办。")
-    Dialogue.Talk(337, "双儿：我会把入口记录在册。少主下次再来，便知道水阁从这里进。")
+    Dialogue.Talk(0, "既是入阁旧例，就照规矩支取。")
 
-    -- TODO: Future slice should implement actual teleport/room-entry behavior,
-    -- verify the -3000 silver flow, and keep 水阁宝箱 rewards in a separate
-    -- idempotent quest bound from the inner marker.
-    set_flag(PROTAGONIST_OPENING_SHUIGE_ENTRY_FLAGS.unlocked, true)
-    set_flag(innerMarkerFlag, true)
-    if type(jyx2_FixMapObject) == "function" then
-        jyx2_FixMapObject(innerMarkerFlag, "1")
-    elseif JSHYL.QQZJ.Scene and JSHYL.QQZJ.Scene.Replace then
-        JSHYL.QQZJ.Scene.Replace("Triggers/jshyl_shuige_inner_marker", true)
+    if not get_flag(PROTAGONIST_OPENING_SHUIGE_ENTRY_FLAGS.costResolved) then
+        if JudgeMoney(silverCost) ~= true then
+            set_flag(PROTAGONIST_OPENING_SHUIGE_ENTRY_FLAGS.insufficientSilver, true)
+            Dialogue.Talk(337, "双儿：少主，账上银两不足三千。等备足银两后，我再替您开启水阁内侧。")
+            Dialogue.Talk(0, "也好。银两不足，今日先不入阁。")
+            return false
+        end
+
+        AddItemWithoutHint(silverItemId, -silverCost)
+        set_flag(PROTAGONIST_OPENING_SHUIGE_ENTRY_FLAGS.paid, true)
+        set_flag(PROTAGONIST_OPENING_SHUIGE_ENTRY_FLAGS.costResolved, true)
     end
+
+    Dialogue.Talk(337, "双儿：三千两已经入账。我会把入口记录在册，少主下次再来，便知道水阁从这里进。")
+
+    -- TODO: Future slice should implement actual teleport/room-entry behavior
+    -- and keep 水阁宝箱 rewards in a separate idempotent quest bound from the
+    -- inner marker.
+    set_flag(PROTAGONIST_OPENING_SHUIGE_ENTRY_FLAGS.unlocked, true)
+    unlock_shuige_inner_marker(innerMarkerFlag)
     set_flag(PROTAGONIST_OPENING_SHUIGE_ENTRY_FLAGS.completed, true)
     return true
 end
