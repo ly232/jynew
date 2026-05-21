@@ -115,6 +115,60 @@ local PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS = {
     started = "qqzj_protagonist_apprenticeship_intro_started",
     dialogueSeen = "qqzj_protagonist_apprenticeship_intro_dialogue_seen",
     completed = "qqzj_protagonist_apprenticeship_intro_completed",
+    branchSelected = "qqzj_protagonist_apprenticeship_branch_selected",
+    selectedBranchId = "qqzj_protagonist_apprenticeship_selected_branch_id",
+    chooseMasterStarted = "qqzj_protagonist_apprenticeship_choose_master_started",
+    chooseMasterPromptSeen = "qqzj_protagonist_apprenticeship_choose_master_prompt_seen",
+    chooseMasterConfirmed = "qqzj_protagonist_apprenticeship_choose_master_confirmed",
+    chooseMasterCompleted = "qqzj_protagonist_apprenticeship_choose_master_completed",
+}
+
+local PROTAGONIST_APPRENTICESHIP_BRANCHES = {
+    {
+        id = 1,
+        key = "abi",
+        flag = "qqzj_protagonist_apprenticeship_branch_abi",
+        mentorRoleId = 339,
+        mentorName = "阿碧",
+        skillName = "七弦无形剑",
+        branchName = "暗毒",
+    },
+    {
+        id = 2,
+        key = "dengbaichuan",
+        flag = "qqzj_protagonist_apprenticeship_branch_dengbaichuan",
+        mentorRoleId = 0,
+        mentorName = "邓百川",
+        skillName = "回风舞柳剑",
+        branchName = "御剑",
+    },
+    {
+        id = 3,
+        key = "baobutong",
+        flag = "qqzj_protagonist_apprenticeship_branch_baobutong",
+        mentorRoleId = 0,
+        mentorName = "包不同",
+        skillName = "如影随形腿",
+        branchName = "指腿",
+    },
+    {
+        id = 4,
+        key = "fengboe",
+        flag = "qqzj_protagonist_apprenticeship_branch_fengboe",
+        mentorRoleId = 0,
+        mentorName = "风波恶",
+        skillName = "飞沙走石刀",
+        branchName = "兵器",
+    },
+    {
+        id = 5,
+        key = "gongyegan",
+        flag = "qqzj_protagonist_apprenticeship_branch_gongyegan",
+        mentorRoleId = 0,
+        mentorName = "公冶干",
+        skillName = "大风云飞掌",
+        branchName = "拳掌",
+    },
 }
 
 local PROTAGONIST_OPENING_LEGACY_FLAGS = {
@@ -629,6 +683,80 @@ local function run_yanziwu_treasure_silver_chest()
     return true
 end
 
+local function get_apprenticeship_selected_branch()
+    if get_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.branchSelected) then
+        local selectedBranchId = get_flag_int(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.selectedBranchId)
+        for _, branch in ipairs(PROTAGONIST_APPRENTICESHIP_BRANCHES) do
+            if selectedBranchId == branch.id or get_flag(branch.flag) then
+                return branch
+            end
+        end
+    end
+
+    -- Old or partially written saves may have a branch-specific flag without
+    -- the aggregate selected flag. Normalize that state before continuing.
+    for _, branch in ipairs(PROTAGONIST_APPRENTICESHIP_BRANCHES) do
+        if get_flag(branch.flag) then
+            set_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.branchSelected, true)
+            set_flag_int(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.selectedBranchId, branch.id)
+            return branch
+        end
+    end
+
+    return nil
+end
+
+local function show_apprenticeship_selected_branch(Dialogue, branch)
+    Dialogue.Talk(339, "阿碧：少主已择定" .. branch.mentorName .. " / " .. branch.skillName .. "一路。此事已入燕子坞册，不再更改。")
+    Dialogue.Talk(0, "既已选定，之后狼牙燕翎、洗第二格武功与水阁书房，再按这一支推进。")
+end
+
+local function lock_apprenticeship_branch(branch)
+    set_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.branchSelected, true)
+    set_flag_int(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.selectedBranchId, branch.id)
+    set_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.chooseMasterConfirmed, true)
+    set_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.chooseMasterCompleted, true)
+    set_flag(branch.flag, true)
+end
+
+local function run_protagonist_apprenticeship_branch_choice()
+    local Dialogue = dialogue()
+    local selectedBranch = get_apprenticeship_selected_branch()
+
+    if selectedBranch then
+        show_apprenticeship_selected_branch(Dialogue, selectedBranch)
+        return true
+    end
+
+    set_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.chooseMasterStarted, true)
+    Dialogue.Talk(339, "阿碧：少主如今可择一位授业之人。此选择只先记入旗标，不会消耗狼牙燕翎，也不会改动武功或属性。")
+
+    if Dialogue.YesNo("现在选择拜师分支？") == false then
+        Dialogue.Talk(339, "阿碧：少主若还要斟酌，便先不入册。下次再来，仍可重新查看五路。")
+        return false
+    end
+
+    set_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.chooseMasterPromptSeen, true)
+
+    for _, branch in ipairs(PROTAGONIST_APPRENTICESHIP_BRANCHES) do
+        local prompt = "选择" .. branch.mentorName .. " / " .. branch.skillName .. " / " .. branch.branchName .. "？"
+        if Dialogue.YesNo(prompt) then
+            Dialogue.Talk(339, "阿碧：若选" .. branch.mentorName .. "这一支，日后便以" .. branch.skillName .. "为拜师方向。")
+            if Dialogue.YesNo("确定选择" .. branch.mentorName .. "路线？此选择不可更改。") then
+                lock_apprenticeship_branch(branch)
+                Dialogue.Talk(339, "阿碧：已经记入燕子坞册。今日只锁定分支，不消耗狼牙燕翎，也不授武功。")
+                show_apprenticeship_selected_branch(Dialogue, branch)
+                return true
+            end
+
+            Dialogue.Talk(339, "阿碧：那这一支先不定。少主可继续看后面的几路。")
+        end
+    end
+
+    Dialogue.Talk(339, "阿碧：五路都未入册。少主想清楚后，再来择定拜师方向。")
+    return false
+end
+
 local function run_protagonist_apprenticeship_intro()
     local Dialogue = dialogue()
 
@@ -641,9 +769,7 @@ local function run_protagonist_apprenticeship_intro()
     end
 
     if get_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.completed) then
-        Dialogue.Talk(339, "阿碧：少主，狼牙燕翎的用处已经说过。之后会在阿碧与四大家将之间择一门家传艺业。")
-        Dialogue.Talk(0, "我记得。正式择师、洗武功和水阁书房，等之后再逐项办理。")
-        return true
+        return run_protagonist_apprenticeship_branch_choice()
     end
 
     Dialogue.Talk(339, "阿碧：少主手中的狼牙燕翎，是燕子坞内门暗记。凭它，可向阿碧或四大家将请教一门入门艺业。")
@@ -655,7 +781,7 @@ local function run_protagonist_apprenticeship_intro()
     -- or stats, start battles, add companions, or unlock ShuiGe study here.
     set_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.dialogueSeen, true)
     set_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.completed, true)
-    return true
+    return run_protagonist_apprenticeship_branch_choice()
 end
 
 local function run_abi_guidance()
