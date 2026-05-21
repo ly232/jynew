@@ -18,6 +18,7 @@ local QUEST_ID_PROTAGONIST_OPENING_SHUIGE_INNER = "qqzj_protagonist_opening_shui
 local QUEST_ID_PROTAGONIST_OPENING_SHUIGE_CENTER_CHEST = "qqzj_protagonist_opening_shuige_center_chest"
 local QUEST_ID_PROTAGONIST_OPENING_SHIJIAN_TRAINING = "qqzj_protagonist_opening_shijian_training"
 local QUEST_ID_YANZIWU_TREASURE_SILVER_CHEST = "qqzj_yanziwu_treasure_silver_chest"
+local QUEST_ID_PROTAGONIST_APPRENTICESHIP_INTRO = "qqzj_protagonist_apprenticeship_intro"
 
 local ABI_FLAGS = {
     started = "qqzj_intro_abi_guidance_started",
@@ -108,6 +109,12 @@ local YANZIWU_TREASURE_SILVER_CHEST_FLAGS = {
     started = "qqzj_yanziwu_treasure_silver_chest_started",
     rewardClaimed = "qqzj_yanziwu_treasure_silver_chest_reward_claimed",
     completed = "qqzj_yanziwu_treasure_silver_chest_completed",
+}
+
+local PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS = {
+    started = "qqzj_protagonist_apprenticeship_intro_started",
+    dialogueSeen = "qqzj_protagonist_apprenticeship_intro_dialogue_seen",
+    completed = "qqzj_protagonist_apprenticeship_intro_completed",
 }
 
 local PROTAGONIST_OPENING_LEGACY_FLAGS = {
@@ -622,6 +629,35 @@ local function run_yanziwu_treasure_silver_chest()
     return true
 end
 
+local function run_protagonist_apprenticeship_intro()
+    local Dialogue = dialogue()
+
+    set_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.started, true)
+
+    if not get_flag(PROTAGONIST_OPENING_FAMILY_BRIEFING_FLAGS.toolRewardClaimed) then
+        Dialogue.Talk(339, "阿碧：少主若要拜师择艺，须先收下二叔三叔留下的狼牙燕翎。")
+        Dialogue.Talk(0, "我先去把燕子坞开局的交代听完，再来问拜师的事。")
+        return false
+    end
+
+    if get_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.completed) then
+        Dialogue.Talk(339, "阿碧：少主，狼牙燕翎的用处已经说过。之后会在阿碧与四大家将之间择一门家传艺业。")
+        Dialogue.Talk(0, "我记得。正式择师、洗武功和水阁书房，等之后再逐项办理。")
+        return true
+    end
+
+    Dialogue.Talk(339, "阿碧：少主手中的狼牙燕翎，是燕子坞内门暗记。凭它，可向阿碧或四大家将请教一门入门艺业。")
+    Dialogue.Talk(339, "阿碧：阿碧这里偏七弦无形剑，邓大爷、包三爷、风四爷、公冶二爷也各有一路。")
+    Dialogue.Talk(0, "今日先把规矩记下。真正择师、洗第二格武功，以及后续水阁书房取艺，等账册和武学条目核准后再定。")
+
+    -- TPR-042A deliberately introduces only dialogue and save-backed flags.
+    -- Do not consume 狼牙燕翎 id 206, set branch-choice flags, mutate skills
+    -- or stats, start battles, add companions, or unlock ShuiGe study here.
+    set_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.dialogueSeen, true)
+    set_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.completed, true)
+    return true
+end
+
 local function run_abi_guidance()
     local Dialogue = dialogue()
     local rewardItemId = 3 -- 小还丹, a small existing starter healing item.
@@ -694,6 +730,7 @@ Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_SHUIGE_INNER] = run_protagonist_open
 Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_SHUIGE_CENTER_CHEST] = run_protagonist_opening_shuige_center_chest
 Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_SHIJIAN_TRAINING] = run_protagonist_opening_shijian_training
 Quest.Handlers[QUEST_ID_YANZIWU_TREASURE_SILVER_CHEST] = run_yanziwu_treasure_silver_chest
+Quest.Handlers[QUEST_ID_PROTAGONIST_APPRENTICESHIP_INTRO] = run_protagonist_apprenticeship_intro
 
 function JSHYL.QQZJ.Quest.Run(questId)
     local handler = JSHYL.QQZJ.Quest.Handlers and JSHYL.QQZJ.Quest.Handlers[questId]
