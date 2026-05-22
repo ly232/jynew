@@ -123,6 +123,7 @@ local PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS = {
     chooseMasterCompleted = "qqzj_protagonist_apprenticeship_choose_master_completed",
     langyaYanlingConsumed = "qqzj_protagonist_apprenticeship_langya_yanling_consumed",
     langyaYanlingLegacyWaived = "qqzj_protagonist_apprenticeship_langya_yanling_legacy_waived",
+    branchAbiSkillRewardClaimed = "qqzj_protagonist_apprenticeship_branch_abi_skill_reward_claimed",
 }
 
 local PROTAGONIST_APPRENTICESHIP_BRANCHES = {
@@ -713,6 +714,21 @@ local function show_apprenticeship_selected_branch(Dialogue, branch)
     Dialogue.Talk(0, "既已选定，之后狼牙燕翎、洗第二格武功与水阁书房，再按这一支推进。")
 end
 
+local function claim_abi_apprenticeship_skill_reward(Dialogue)
+    local skillIdQixianWuxingjian = 206
+
+    if get_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.branchAbiSkillRewardClaimed) then
+        Dialogue.Talk(339, "阿碧：少主已记下七弦无形剑的入门法门，今日不再重复授艺。")
+        return true
+    end
+
+    LearnMagic2(0, skillIdQixianWuxingjian, 0)
+    set_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.branchAbiSkillRewardClaimed, true)
+    Dialogue.Talk(339, "阿碧：既已择定阿碧这一支，便先将七弦无形剑的入门法门授给少主。")
+    Dialogue.Talk(0, "我记下了。第二格洗武功、武学常识和暗毒系数，之后再按燕子坞规矩细办。")
+    return true
+end
+
 local function apprenticeship_token_cost_resolved()
     return get_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.langyaYanlingConsumed)
         or get_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.langyaYanlingLegacyWaived)
@@ -761,6 +777,9 @@ local function run_protagonist_apprenticeship_branch_choice()
     if selectedBranch then
         resolve_existing_apprenticeship_token_cost(Dialogue)
         show_apprenticeship_selected_branch(Dialogue, selectedBranch)
+        if selectedBranch.key == "abi" and apprenticeship_token_cost_resolved() then
+            claim_abi_apprenticeship_skill_reward(Dialogue)
+        end
         return true
     end
 
@@ -786,8 +805,11 @@ local function run_protagonist_apprenticeship_branch_choice()
                 end
 
                 lock_apprenticeship_branch(branch)
-                Dialogue.Talk(339, "阿碧：狼牙燕翎已收入册，也已经记下拜师方向。今日只锁定分支，暂不授武功。")
+                Dialogue.Talk(339, "阿碧：狼牙燕翎已收入册，也已经记下拜师方向。")
                 show_apprenticeship_selected_branch(Dialogue, branch)
+                if branch.key == "abi" and apprenticeship_token_cost_resolved() then
+                    claim_abi_apprenticeship_skill_reward(Dialogue)
+                end
                 return true
             end
 
