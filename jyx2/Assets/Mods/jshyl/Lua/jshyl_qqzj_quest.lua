@@ -121,6 +121,8 @@ local PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS = {
     chooseMasterPromptSeen = "qqzj_protagonist_apprenticeship_choose_master_prompt_seen",
     chooseMasterConfirmed = "qqzj_protagonist_apprenticeship_choose_master_confirmed",
     chooseMasterCompleted = "qqzj_protagonist_apprenticeship_choose_master_completed",
+    langyaYanlingConsumed = "qqzj_protagonist_apprenticeship_langya_yanling_consumed",
+    langyaYanlingLegacyWaived = "qqzj_protagonist_apprenticeship_langya_yanling_legacy_waived",
 }
 
 local PROTAGONIST_APPRENTICESHIP_BRANCHES = {
@@ -711,6 +713,39 @@ local function show_apprenticeship_selected_branch(Dialogue, branch)
     Dialogue.Talk(0, "既已选定，之后狼牙燕翎、洗第二格武功与水阁书房，再按这一支推进。")
 end
 
+local function apprenticeship_token_cost_resolved()
+    return get_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.langyaYanlingConsumed)
+        or get_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.langyaYanlingLegacyWaived)
+end
+
+local function consume_langya_yanling()
+    local langyaYanlingItemId = 206
+
+    if HaveItem(langyaYanlingItemId) ~= true then
+        return false
+    end
+
+    AddItemWithoutHint(langyaYanlingItemId, -1)
+    set_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.langyaYanlingConsumed, true)
+    return true
+end
+
+local function resolve_existing_apprenticeship_token_cost(Dialogue)
+    if apprenticeship_token_cost_resolved() then
+        return
+    end
+
+    if consume_langya_yanling() then
+        Dialogue.Talk(339, "阿碧：少主既已择定拜师方向，狼牙燕翎今日补收入册。")
+        return
+    end
+
+    -- Branch selection existed before token consumption was implemented. Do
+    -- not block those saves if the inert token is no longer in inventory.
+    set_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.langyaYanlingLegacyWaived, true)
+    Dialogue.Talk(339, "阿碧：少主的拜师方向早已入册。狼牙燕翎旧账今日按既有存档免收。")
+end
+
 local function lock_apprenticeship_branch(branch)
     set_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.branchSelected, true)
     set_flag_int(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.selectedBranchId, branch.id)
@@ -724,12 +759,13 @@ local function run_protagonist_apprenticeship_branch_choice()
     local selectedBranch = get_apprenticeship_selected_branch()
 
     if selectedBranch then
+        resolve_existing_apprenticeship_token_cost(Dialogue)
         show_apprenticeship_selected_branch(Dialogue, selectedBranch)
         return true
     end
 
     set_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.chooseMasterStarted, true)
-    Dialogue.Talk(339, "阿碧：少主如今可择一位授业之人。此选择只先记入旗标，不会消耗狼牙燕翎，也不会改动武功或属性。")
+    Dialogue.Talk(339, "阿碧：少主如今可择一位授业之人。择定时会交出狼牙燕翎；今日仍不会改动武功或属性。")
 
     if Dialogue.YesNo("现在选择拜师分支？") == false then
         Dialogue.Talk(339, "阿碧：少主若还要斟酌，便先不入册。下次再来，仍可重新查看五路。")
@@ -743,8 +779,14 @@ local function run_protagonist_apprenticeship_branch_choice()
         if Dialogue.YesNo(prompt) then
             Dialogue.Talk(339, "阿碧：若选" .. branch.mentorName .. "这一支，日后便以" .. branch.skillName .. "为拜师方向。")
             if Dialogue.YesNo("确定选择" .. branch.mentorName .. "路线？此选择不可更改。") then
+                if not consume_langya_yanling() then
+                    Dialogue.Talk(339, "阿碧：少主身上没有狼牙燕翎，不能将拜师方向写入燕子坞册。")
+                    Dialogue.Talk(0, "那我先取回狼牙燕翎，再来正式择师。")
+                    return false
+                end
+
                 lock_apprenticeship_branch(branch)
-                Dialogue.Talk(339, "阿碧：已经记入燕子坞册。今日只锁定分支，不消耗狼牙燕翎，也不授武功。")
+                Dialogue.Talk(339, "阿碧：狼牙燕翎已收入册，也已经记下拜师方向。今日只锁定分支，暂不授武功。")
                 show_apprenticeship_selected_branch(Dialogue, branch)
                 return true
             end
@@ -777,8 +819,8 @@ local function run_protagonist_apprenticeship_intro()
     Dialogue.Talk(0, "今日先把规矩记下。真正择师、洗第二格武功，以及后续水阁书房取艺，等账册和武学条目核准后再定。")
 
     -- TPR-042A deliberately introduces only dialogue and save-backed flags.
-    -- Do not consume 狼牙燕翎 id 206, set branch-choice flags, mutate skills
-    -- or stats, start battles, add companions, or unlock ShuiGe study here.
+    -- Later slices handle branch choice, token consumption, skills, stats,
+    -- battles, companions, and ShuiGe study in separate idempotent steps.
     set_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.dialogueSeen, true)
     set_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.completed, true)
     return run_protagonist_apprenticeship_branch_choice()
