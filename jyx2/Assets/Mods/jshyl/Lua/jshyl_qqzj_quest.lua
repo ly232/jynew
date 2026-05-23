@@ -124,6 +124,10 @@ local PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS = {
     langyaYanlingConsumed = "qqzj_protagonist_apprenticeship_langya_yanling_consumed",
     langyaYanlingLegacyWaived = "qqzj_protagonist_apprenticeship_langya_yanling_legacy_waived",
     branchAbiSkillRewardClaimed = "qqzj_protagonist_apprenticeship_branch_abi_skill_reward_claimed",
+    branchDengbaichuanSkillRewardClaimed = "qqzj_protagonist_apprenticeship_branch_dengbaichuan_skill_reward_claimed",
+    branchBaobutongSkillRewardClaimed = "qqzj_protagonist_apprenticeship_branch_baobutong_skill_reward_claimed",
+    branchFengboeSkillRewardClaimed = "qqzj_protagonist_apprenticeship_branch_fengboe_skill_reward_claimed",
+    branchGongyeganSkillRewardClaimed = "qqzj_protagonist_apprenticeship_branch_gongyegan_skill_reward_claimed",
 }
 
 local PROTAGONIST_APPRENTICESHIP_BRANCHES = {
@@ -714,18 +718,49 @@ local function show_apprenticeship_selected_branch(Dialogue, branch)
     Dialogue.Talk(0, "既已选定，之后狼牙燕翎、洗第二格武功与水阁书房，再按这一支推进。")
 end
 
-local function claim_abi_apprenticeship_skill_reward(Dialogue)
-    local skillIdQixianWuxingjian = 206
+local APPRENTICESHIP_SKILL_REWARDS = {
+    abi = {
+        skillId = 206,
+        skillName = "七弦无形剑",
+        flag = PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.branchAbiSkillRewardClaimed,
+    },
+    dengbaichuan = {
+        skillId = 207,
+        skillName = "回风舞柳剑",
+        flag = PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.branchDengbaichuanSkillRewardClaimed,
+    },
+    baobutong = {
+        skillId = 208,
+        skillName = "如影随形腿",
+        flag = PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.branchBaobutongSkillRewardClaimed,
+    },
+    fengboe = {
+        skillId = 209,
+        skillName = "飞沙走石刀",
+        flag = PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.branchFengboeSkillRewardClaimed,
+    },
+    gongyegan = {
+        skillId = 210,
+        skillName = "大风云飞掌",
+        flag = PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.branchGongyeganSkillRewardClaimed,
+    },
+}
 
-    if get_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.branchAbiSkillRewardClaimed) then
-        Dialogue.Talk(339, "阿碧：少主已记下七弦无形剑的入门法门，今日不再重复授艺。")
+local function claim_apprenticeship_skill_reward(Dialogue, branch)
+    local reward = APPRENTICESHIP_SKILL_REWARDS[branch.key]
+    if reward == nil then
+        return false
+    end
+
+    if get_flag(reward.flag) then
+        Dialogue.Talk(339, "阿碧：少主已记下" .. reward.skillName .. "的入门法门，今日不再重复授艺。")
         return true
     end
 
-    LearnMagic2(0, skillIdQixianWuxingjian, 0)
-    set_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.branchAbiSkillRewardClaimed, true)
-    Dialogue.Talk(339, "阿碧：既已择定阿碧这一支，便先将七弦无形剑的入门法门授给少主。")
-    Dialogue.Talk(0, "我记下了。第二格洗武功、武学常识和暗毒系数，之后再按燕子坞规矩细办。")
+    LearnMagic2(0, reward.skillId, 0)
+    set_flag(reward.flag, true)
+    Dialogue.Talk(339, "阿碧：既已择定" .. branch.mentorName .. "这一支，便先将" .. reward.skillName .. "的入门法门授给少主。")
+    Dialogue.Talk(0, "我记下了。第二格洗武功、武学常识和" .. branch.branchName .. "系数，之后再按燕子坞规矩细办。")
     return true
 end
 
@@ -777,8 +812,8 @@ local function run_protagonist_apprenticeship_branch_choice()
     if selectedBranch then
         resolve_existing_apprenticeship_token_cost(Dialogue)
         show_apprenticeship_selected_branch(Dialogue, selectedBranch)
-        if selectedBranch.key == "abi" and apprenticeship_token_cost_resolved() then
-            claim_abi_apprenticeship_skill_reward(Dialogue)
+        if apprenticeship_token_cost_resolved() then
+            claim_apprenticeship_skill_reward(Dialogue, selectedBranch)
         end
         return true
     end
@@ -807,8 +842,8 @@ local function run_protagonist_apprenticeship_branch_choice()
                 lock_apprenticeship_branch(branch)
                 Dialogue.Talk(339, "阿碧：狼牙燕翎已收入册，也已经记下拜师方向。")
                 show_apprenticeship_selected_branch(Dialogue, branch)
-                if branch.key == "abi" and apprenticeship_token_cost_resolved() then
-                    claim_abi_apprenticeship_skill_reward(Dialogue)
+                if apprenticeship_token_cost_resolved() then
+                    claim_apprenticeship_skill_reward(Dialogue, branch)
                 end
                 return true
             end
