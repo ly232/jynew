@@ -19,6 +19,7 @@ local QUEST_ID_PROTAGONIST_OPENING_SHUIGE_CENTER_CHEST = "qqzj_protagonist_openi
 local QUEST_ID_PROTAGONIST_OPENING_SHIJIAN_TRAINING = "qqzj_protagonist_opening_shijian_training"
 local QUEST_ID_YANZIWU_TREASURE_SILVER_CHEST = "qqzj_yanziwu_treasure_silver_chest"
 local QUEST_ID_PROTAGONIST_APPRENTICESHIP_INTRO = "qqzj_protagonist_apprenticeship_intro"
+local QUEST_ID_PROTAGONIST_SHUIGE_UPPER_STUDY_INTRO = "qqzj_protagonist_shuige_upper_study_intro"
 
 local ABI_FLAGS = {
     started = "qqzj_intro_abi_guidance_started",
@@ -130,6 +131,12 @@ local PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS = {
     branchGongyeganSkillRewardClaimed = "qqzj_protagonist_apprenticeship_branch_gongyegan_skill_reward_claimed",
     wuchangRewardClaimed = "qqzj_protagonist_apprenticeship_wuchang_reward_claimed",
     secondSlotWashed = "qqzj_protagonist_apprenticeship_second_slot_washed",
+}
+
+local PROTAGONIST_SHUIGE_UPPER_STUDY_INTRO_FLAGS = {
+    started = "qqzj_protagonist_shuige_upper_study_intro_started",
+    dialogueSeen = "qqzj_protagonist_shuige_upper_study_intro_dialogue_seen",
+    completed = "qqzj_protagonist_shuige_upper_study_intro_completed",
 }
 
 local PROTAGONIST_APPRENTICESHIP_BRANCHES = {
@@ -692,6 +699,38 @@ local function run_yanziwu_treasure_silver_chest()
     return true
 end
 
+local function run_protagonist_shuige_upper_study_intro()
+    local Dialogue = dialogue()
+
+    if not get_flag(PROTAGONIST_OPENING_SHUIGE_INNER_FLAGS.completed) then
+        Dialogue.Talk(337, "双儿：少主，水阁内侧尚未整理妥当。请先完成还施水阁内侧登记，再上楼读书。")
+        return false
+    end
+
+    if not get_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.secondSlotWashed) then
+        Dialogue.Talk(337, "双儿：少主，楼上书架牵涉拜师后的武学归档。请先在燕子坞择师，并完成第二格武功整理。")
+        return false
+    end
+
+    set_flag(PROTAGONIST_SHUIGE_UPPER_STUDY_INTRO_FLAGS.started, true)
+
+    if get_flag(PROTAGONIST_SHUIGE_UPPER_STUDY_INTRO_FLAGS.completed) then
+        Dialogue.Talk(337, "双儿：少主，水阁上层书房已经登记过。今日只作入口记录，书架取艺日后再逐项清点。")
+        return true
+    end
+
+    Dialogue.Talk(337, "双儿：少主，这里通向还施水阁上层书房。拜师方向既定后，其余几路武学可从书架慢慢校读。")
+    Dialogue.Talk(0, "先记下上层书房入口。今日不取秘籍，也不改武功。")
+    Dialogue.Talk(337, "双儿：是。书架与第四格洗武功，等下一步把架位和所学分支逐项绑定后再办。")
+
+    -- TPR-060 deliberately opens only the study intro marker. Do not grant
+    -- skills, stats, shelf rewards, or fourth-slot washes here; future 5212
+    -- shelf work owns that source-critical behavior.
+    set_flag(PROTAGONIST_SHUIGE_UPPER_STUDY_INTRO_FLAGS.dialogueSeen, true)
+    set_flag(PROTAGONIST_SHUIGE_UPPER_STUDY_INTRO_FLAGS.completed, true)
+    return true
+end
+
 local function get_apprenticeship_selected_branch()
     if get_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.branchSelected) then
         local selectedBranchId = get_flag_int(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.selectedBranchId)
@@ -996,6 +1035,7 @@ Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_SHUIGE_CENTER_CHEST] = run_protagoni
 Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_SHIJIAN_TRAINING] = run_protagonist_opening_shijian_training
 Quest.Handlers[QUEST_ID_YANZIWU_TREASURE_SILVER_CHEST] = run_yanziwu_treasure_silver_chest
 Quest.Handlers[QUEST_ID_PROTAGONIST_APPRENTICESHIP_INTRO] = run_protagonist_apprenticeship_intro
+Quest.Handlers[QUEST_ID_PROTAGONIST_SHUIGE_UPPER_STUDY_INTRO] = run_protagonist_shuige_upper_study_intro
 
 function JSHYL.QQZJ.Quest.Run(questId)
     local handler = JSHYL.QQZJ.Quest.Handlers and JSHYL.QQZJ.Quest.Handlers[questId]
