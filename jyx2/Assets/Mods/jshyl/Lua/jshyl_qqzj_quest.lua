@@ -128,6 +128,7 @@ local PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS = {
     branchBaobutongSkillRewardClaimed = "qqzj_protagonist_apprenticeship_branch_baobutong_skill_reward_claimed",
     branchFengboeSkillRewardClaimed = "qqzj_protagonist_apprenticeship_branch_fengboe_skill_reward_claimed",
     branchGongyeganSkillRewardClaimed = "qqzj_protagonist_apprenticeship_branch_gongyegan_skill_reward_claimed",
+    wuchangRewardClaimed = "qqzj_protagonist_apprenticeship_wuchang_reward_claimed",
 }
 
 local PROTAGONIST_APPRENTICESHIP_BRANCHES = {
@@ -764,6 +765,19 @@ local function claim_apprenticeship_skill_reward(Dialogue, branch)
     return true
 end
 
+local function claim_apprenticeship_wuchang_reward(Dialogue)
+    if get_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.wuchangRewardClaimed) then
+        Dialogue.Talk(339, "阿碧：少主拜师后的武学常识已经入账，今日不再重复记功。")
+        return true
+    end
+
+    AddWuchang(0, 50)
+    set_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.wuchangRewardClaimed, true)
+    Dialogue.Talk(339, "阿碧：少主既已入门，水阁账册再记武学常识五十点。")
+    Dialogue.Talk(0, "先把眼界根基补上。分支系数、洗武功和水阁书房，之后再细办。")
+    return true
+end
+
 local function apprenticeship_token_cost_resolved()
     return get_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.langyaYanlingConsumed)
         or get_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.langyaYanlingLegacyWaived)
@@ -813,7 +827,9 @@ local function run_protagonist_apprenticeship_branch_choice()
         resolve_existing_apprenticeship_token_cost(Dialogue)
         show_apprenticeship_selected_branch(Dialogue, selectedBranch)
         if apprenticeship_token_cost_resolved() then
-            claim_apprenticeship_skill_reward(Dialogue, selectedBranch)
+            if claim_apprenticeship_skill_reward(Dialogue, selectedBranch) then
+                claim_apprenticeship_wuchang_reward(Dialogue)
+            end
         end
         return true
     end
@@ -843,7 +859,9 @@ local function run_protagonist_apprenticeship_branch_choice()
                 Dialogue.Talk(339, "阿碧：狼牙燕翎已收入册，也已经记下拜师方向。")
                 show_apprenticeship_selected_branch(Dialogue, branch)
                 if apprenticeship_token_cost_resolved() then
-                    claim_apprenticeship_skill_reward(Dialogue, branch)
+                    if claim_apprenticeship_skill_reward(Dialogue, branch) then
+                        claim_apprenticeship_wuchang_reward(Dialogue)
+                    end
                 end
                 return true
             end
