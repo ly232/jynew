@@ -129,6 +129,7 @@ local PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS = {
     branchFengboeSkillRewardClaimed = "qqzj_protagonist_apprenticeship_branch_fengboe_skill_reward_claimed",
     branchGongyeganSkillRewardClaimed = "qqzj_protagonist_apprenticeship_branch_gongyegan_skill_reward_claimed",
     wuchangRewardClaimed = "qqzj_protagonist_apprenticeship_wuchang_reward_claimed",
+    secondSlotWashed = "qqzj_protagonist_apprenticeship_second_slot_washed",
 }
 
 local PROTAGONIST_APPRENTICESHIP_BRANCHES = {
@@ -765,6 +766,25 @@ local function claim_apprenticeship_skill_reward(Dialogue, branch)
     return true
 end
 
+local function claim_apprenticeship_second_slot_wash(Dialogue, branch)
+    local reward = APPRENTICESHIP_SKILL_REWARDS[branch.key]
+    if reward == nil then
+        return false
+    end
+
+    if get_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.secondSlotWashed) then
+        Dialogue.Talk(339, "阿碧：少主第二格武功已经按拜师方向洗过，今日不再重复改动。")
+        return true
+    end
+
+    -- TPR 拜师要求主角第二格武功洗为所选路线武功。SetOneMagic
+    -- 使用从 0 开始的槽位索引；1 表示第二格，等级 0 表示 1 级。
+    SetOneMagic(0, 1, reward.skillId, 0)
+    set_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.secondSlotWashed, true)
+    Dialogue.Talk(339, "阿碧：照燕子坞规矩，少主第二格武功已洗为" .. reward.skillName .. "。")
+    return true
+end
+
 local function claim_apprenticeship_wuchang_reward(Dialogue)
     if get_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.wuchangRewardClaimed) then
         Dialogue.Talk(339, "阿碧：少主拜师后的武学常识已经入账，今日不再重复记功。")
@@ -828,6 +848,7 @@ local function run_protagonist_apprenticeship_branch_choice()
         show_apprenticeship_selected_branch(Dialogue, selectedBranch)
         if apprenticeship_token_cost_resolved() then
             if claim_apprenticeship_skill_reward(Dialogue, selectedBranch) then
+                claim_apprenticeship_second_slot_wash(Dialogue, selectedBranch)
                 claim_apprenticeship_wuchang_reward(Dialogue)
             end
         end
@@ -860,6 +881,7 @@ local function run_protagonist_apprenticeship_branch_choice()
                 show_apprenticeship_selected_branch(Dialogue, branch)
                 if apprenticeship_token_cost_resolved() then
                     if claim_apprenticeship_skill_reward(Dialogue, branch) then
+                        claim_apprenticeship_second_slot_wash(Dialogue, branch)
                         claim_apprenticeship_wuchang_reward(Dialogue)
                     end
                 end
