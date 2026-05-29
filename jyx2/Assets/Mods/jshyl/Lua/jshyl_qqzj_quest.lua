@@ -20,6 +20,7 @@ local QUEST_ID_PROTAGONIST_OPENING_SHIJIAN_TRAINING = "qqzj_protagonist_opening_
 local QUEST_ID_YANZIWU_TREASURE_SILVER_CHEST = "qqzj_yanziwu_treasure_silver_chest"
 local QUEST_ID_PROTAGONIST_APPRENTICESHIP_INTRO = "qqzj_protagonist_apprenticeship_intro"
 local QUEST_ID_PROTAGONIST_SHUIGE_UPPER_STUDY_INTRO = "qqzj_protagonist_shuige_upper_study_intro"
+local QUEST_ID_PROTAGONIST_SHUIGE_GENERIC_SHELF = "qqzj_protagonist_shuige_generic_shelf"
 
 local ABI_FLAGS = {
     started = "qqzj_intro_abi_guidance_started",
@@ -137,6 +138,12 @@ local PROTAGONIST_SHUIGE_UPPER_STUDY_INTRO_FLAGS = {
     started = "qqzj_protagonist_shuige_upper_study_intro_started",
     dialogueSeen = "qqzj_protagonist_shuige_upper_study_intro_dialogue_seen",
     completed = "qqzj_protagonist_shuige_upper_study_intro_completed",
+}
+
+local PROTAGONIST_SHUIGE_GENERIC_SHELF_FLAGS = {
+    started = "qqzj_protagonist_shuige_generic_shelf_started",
+    dialogueSeen = "qqzj_protagonist_shuige_generic_shelf_dialogue_seen",
+    completed = "qqzj_protagonist_shuige_generic_shelf_completed",
 }
 
 local PROTAGONIST_APPRENTICESHIP_BRANCHES = {
@@ -731,6 +738,33 @@ local function run_protagonist_shuige_upper_study_intro()
     return true
 end
 
+local function run_protagonist_shuige_generic_shelf()
+    local Dialogue = dialogue()
+
+    if not get_flag(PROTAGONIST_SHUIGE_UPPER_STUDY_INTRO_FLAGS.completed) then
+        Dialogue.Talk(337, "双儿：少主，水阁上层书房还没有登记。请先确认上层入口，再翻看架上书目。")
+        return false
+    end
+
+    set_flag(PROTAGONIST_SHUIGE_GENERIC_SHELF_FLAGS.started, true)
+
+    if get_flag(PROTAGONIST_SHUIGE_GENERIC_SHELF_FLAGS.completed) then
+        Dialogue.Talk(337, "双儿：少主，这排书架已经粗略看过。今日只记书目，不取书、不授艺，也不改动武功格位。")
+        return true
+    end
+
+    Dialogue.Talk(337, "双儿：少主，这一架多是燕子坞几路家传艺业的札记。纸页虽旧，目录还算齐整。")
+    Dialogue.Talk(0, "先闻一闻书香，记下有哪些门类。真正研读、取艺与洗第四格武功，留到后续再办。")
+    Dialogue.Talk(337, "双儿：是。今日只作书架观察，日后再按少主的拜师分支逐项整理。")
+
+    -- TPR-063 is intentionally dialogue/flags only. Do not inspect branch
+    -- choice, grant skills, change stats, add items, or wash the fourth slot
+    -- here; future ShuiGe shelf work owns those source-critical effects.
+    set_flag(PROTAGONIST_SHUIGE_GENERIC_SHELF_FLAGS.dialogueSeen, true)
+    set_flag(PROTAGONIST_SHUIGE_GENERIC_SHELF_FLAGS.completed, true)
+    return true
+end
+
 local function get_apprenticeship_selected_branch()
     if get_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.branchSelected) then
         local selectedBranchId = get_flag_int(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.selectedBranchId)
@@ -1036,6 +1070,7 @@ Quest.Handlers[QUEST_ID_PROTAGONIST_OPENING_SHIJIAN_TRAINING] = run_protagonist_
 Quest.Handlers[QUEST_ID_YANZIWU_TREASURE_SILVER_CHEST] = run_yanziwu_treasure_silver_chest
 Quest.Handlers[QUEST_ID_PROTAGONIST_APPRENTICESHIP_INTRO] = run_protagonist_apprenticeship_intro
 Quest.Handlers[QUEST_ID_PROTAGONIST_SHUIGE_UPPER_STUDY_INTRO] = run_protagonist_shuige_upper_study_intro
+Quest.Handlers[QUEST_ID_PROTAGONIST_SHUIGE_GENERIC_SHELF] = run_protagonist_shuige_generic_shelf
 
 function JSHYL.QQZJ.Quest.Run(questId)
     local handler = JSHYL.QQZJ.Quest.Handlers and JSHYL.QQZJ.Quest.Handlers[questId]
