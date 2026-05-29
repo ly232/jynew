@@ -118,9 +118,9 @@ It is not source-complete. The current chain supports navigation, gating, repeat
 |---|---|---|---|
 | `TPR-065` | Plan ShuiGe branch-aware shelf rewards and fourth-slot wash | planning | Decide how `5212` reads selected branch, offers unchosen skills, uses `SetOneMagic(0, 3, skillId, 0)`, and preserves old saves. |
 | `TPR-066` | Implement the first safe ShuiGe shelf fourth-slot wash slice | implementation | Add one idempotent source-faithful shelf study effect after the branch-aware plan. |
-| `TPR-067` | Audit 王语嫣 shelf wash behavior | planning | Verify role id, team presence checks, and whether companion fourth-slot wash can be implemented safely. |
-| `TPR-068` | Plan real ShuiGe room/interior visual expansion | planning | Decide whether same-scene room props are enough or whether a later teleport/interior map is needed. |
-| `TPR-069` | Extract the next TPR section after ShuiGe study planning stabilizes | extraction | Resume broader TPR coverage after the current source-critical study mechanics are designed. |
+| `TPR-067` | Checkpoint after ShuiGe fourth-slot wash | checkpoint | Audit the protagonist single-pass apprenticeship and ShuiGe study slice after TPR-066. |
+| `TPR-068` | Plan branch-specific +10 系数/stat rewards | planning | Decide exact stat APIs and whether the source reward must wait for 2周+ battle victory. |
+| `TPR-069` | Audit 王语嫣 shelf wash behavior | planning | Verify role id, team presence checks, and whether companion fourth-slot wash can be implemented safely. |
 
 ## 6. Next Task Recommendation
 

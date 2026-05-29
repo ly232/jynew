@@ -205,7 +205,7 @@ Do not infer claimed rewards from `qqzj_protagonist_shuige_generic_shelf_complet
 | overwriting player-customized fourth slot | expected by source but can surprise testers | dialogue should clearly confirm study before applying wash |
 | multiple claims overwrite fourth slot repeatedly | source allows taking shelf arts, but only one active fourth slot can be visible at a time | one claim per interaction; clear dialogue; per-branch idempotency |
 | branch state missing | shelf cannot know which skill to exclude | gate on selected branch and second-slot wash |
-| 王语嫣 not handled | source incomplete | explicitly defer to TPR-067 audit |
+| 王语嫣 not handled | source incomplete | explicitly defer to a later 王语嫣 audit |
 | skill display/effects incomplete | battle/runtime errors if skills are used later | use already configured ids 206-210; verify in Unity after TPR-066 |
 
 ## 10. Implementation Recommendation
