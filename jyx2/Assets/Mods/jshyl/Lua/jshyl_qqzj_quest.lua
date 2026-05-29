@@ -144,6 +144,10 @@ local PROTAGONIST_SHUIGE_GENERIC_SHELF_FLAGS = {
     started = "qqzj_protagonist_shuige_generic_shelf_started",
     dialogueSeen = "qqzj_protagonist_shuige_generic_shelf_dialogue_seen",
     completed = "qqzj_protagonist_shuige_generic_shelf_completed",
+    fourthSlotWashed = "qqzj_protagonist_shuige_generic_shelf_fourth_slot_washed",
+    rewardSkillFlagPrefix = "qqzj_protagonist_shuige_generic_shelf_reward_skill_",
+    rewardSkillId = "qqzj_protagonist_shuige_generic_shelf_reward_skill_id",
+    rewardBranchId = "qqzj_protagonist_shuige_generic_shelf_reward_branch_id",
 }
 
 local PROTAGONIST_APPRENTICESHIP_BRANCHES = {
@@ -738,6 +742,112 @@ local function run_protagonist_shuige_upper_study_intro()
     return true
 end
 
+local get_apprenticeship_selected_branch
+local APPRENTICESHIP_SKILL_REWARDS
+
+local function get_apprenticeship_branch_by_id(branchId)
+    for _, branch in ipairs(PROTAGONIST_APPRENTICESHIP_BRANCHES) do
+        if branch.id == branchId then
+            return branch
+        end
+    end
+
+    return nil
+end
+
+local function get_shuige_shelf_reward_branch(selectedBranch)
+    if selectedBranch == nil then
+        return nil
+    end
+
+    -- TPR-066 keeps the first source-faithful ShuiGe reward intentionally
+    -- small: choose the next branch in canonical order, wrapping around, so
+    -- the selected apprenticeship skill is never offered from the shelf.
+    local branchCount = #PROTAGONIST_APPRENTICESHIP_BRANCHES
+    for offset = 1, branchCount - 1 do
+        local index = ((selectedBranch.id - 1 + offset) % branchCount) + 1
+        local candidate = PROTAGONIST_APPRENTICESHIP_BRANCHES[index]
+        if candidate ~= nil and candidate.key ~= selectedBranch.key then
+            return candidate
+        end
+    end
+
+    return nil
+end
+
+local function get_shuige_shelf_reward_flag(branch)
+    if branch == nil then
+        return nil
+    end
+
+    return PROTAGONIST_SHUIGE_GENERIC_SHELF_FLAGS.rewardSkillFlagPrefix .. branch.key
+end
+
+local function describe_shuige_shelf_reward_from_flags()
+    local rewardBranchId = get_flag_int(PROTAGONIST_SHUIGE_GENERIC_SHELF_FLAGS.rewardBranchId)
+    local rewardBranch = get_apprenticeship_branch_by_id(rewardBranchId)
+    if rewardBranch ~= nil then
+        return rewardBranch.skillName
+    end
+
+    local rewardSkillId = get_flag_int(PROTAGONIST_SHUIGE_GENERIC_SHELF_FLAGS.rewardSkillId)
+    if rewardSkillId > 0 then
+        return "武功编号" .. rewardSkillId
+    end
+
+    return "水阁书架武学"
+end
+
+local function claim_shuige_generic_shelf_fourth_slot_reward(Dialogue)
+    if get_flag(PROTAGONIST_SHUIGE_GENERIC_SHELF_FLAGS.fourthSlotWashed) then
+        Dialogue.Talk(337, "双儿：少主已从这一排书架取过" .. describe_shuige_shelf_reward_from_flags() .. "，第四格武功今日不再重复改动。")
+        return true
+    end
+
+    if not get_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.branchSelected) then
+        Dialogue.Talk(337, "双儿：少主还没有登记拜师分支，书架不能判断该避开哪一路武学。")
+        return false
+    end
+
+    if not get_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.secondSlotWashed) then
+        Dialogue.Talk(337, "双儿：少主第二格武功尚未按拜师方向整理，暂不能取水阁书架的第四格武学。")
+        return false
+    end
+
+    local selectedBranch = get_apprenticeship_selected_branch()
+    if selectedBranch == nil then
+        Dialogue.Talk(337, "双儿：拜师账册有缺，暂不能登记水阁书架武学。")
+        return false
+    end
+
+    local rewardBranch = get_shuige_shelf_reward_branch(selectedBranch)
+    local reward = rewardBranch ~= nil and APPRENTICESHIP_SKILL_REWARDS[rewardBranch.key] or nil
+    if rewardBranch == nil or reward == nil then
+        Dialogue.Talk(337, "双儿：书架武学条目尚未核准，今日暂不改动第四格。")
+        return false
+    end
+
+    local rewardFlag = get_shuige_shelf_reward_flag(rewardBranch)
+    if rewardFlag ~= nil and get_flag(rewardFlag) then
+        set_flag(PROTAGONIST_SHUIGE_GENERIC_SHELF_FLAGS.fourthSlotWashed, true)
+        Dialogue.Talk(337, "双儿：少主已取过" .. reward.skillName .. "，今日不再重复洗第四格。")
+        return true
+    end
+
+    Dialogue.Talk(337, "双儿：少主拜师择了" .. selectedBranch.mentorName .. "一路，这排书架便避开" .. selectedBranch.skillName .. "。")
+    Dialogue.Talk(337, "双儿：今日先取相邻一路" .. reward.skillName .. "入第四格，余下书架日后再逐项清点。")
+
+    -- TPR 拜师要求水阁书架武学洗入主角第四格。SetOneMagic 使用
+    -- 从 0 开始的槽位索引；3 表示第四格，等级 0 表示 1 级。
+    SetOneMagic(0, 3, reward.skillId, 0)
+    set_flag(PROTAGONIST_SHUIGE_GENERIC_SHELF_FLAGS.fourthSlotWashed, true)
+    set_flag(rewardFlag, true)
+    set_flag_int(PROTAGONIST_SHUIGE_GENERIC_SHELF_FLAGS.rewardSkillId, reward.skillId)
+    set_flag_int(PROTAGONIST_SHUIGE_GENERIC_SHELF_FLAGS.rewardBranchId, rewardBranch.id)
+    Dialogue.Talk(0, "第四格已记下" .. reward.skillName .. "。其余书架先不贪多，待日后再研读。")
+    return true
+end
+
 local function run_protagonist_shuige_generic_shelf()
     local Dialogue = dialogue()
 
@@ -749,23 +859,22 @@ local function run_protagonist_shuige_generic_shelf()
     set_flag(PROTAGONIST_SHUIGE_GENERIC_SHELF_FLAGS.started, true)
 
     if get_flag(PROTAGONIST_SHUIGE_GENERIC_SHELF_FLAGS.completed) then
-        Dialogue.Talk(337, "双儿：少主，这排书架已经粗略看过。今日只记书目，不取书、不授艺，也不改动武功格位。")
-        return true
+        return claim_shuige_generic_shelf_fourth_slot_reward(Dialogue)
     end
 
     Dialogue.Talk(337, "双儿：少主，这一架多是燕子坞几路家传艺业的札记。纸页虽旧，目录还算齐整。")
     Dialogue.Talk(0, "先闻一闻书香，记下有哪些门类。真正研读、取艺与洗第四格武功，留到后续再办。")
     Dialogue.Talk(337, "双儿：是。今日只作书架观察，日后再按少主的拜师分支逐项整理。")
 
-    -- TPR-063 is intentionally dialogue/flags only. Do not inspect branch
-    -- choice, grant skills, change stats, add items, or wash the fourth slot
-    -- here; future ShuiGe shelf work owns those source-critical effects.
+    -- Preserve the TPR-063 first-browse behavior. TPR-066 reward logic runs
+    -- only after this browse flag exists, so older saves can still receive the
+    -- fourth-slot shelf wash on a later interaction.
     set_flag(PROTAGONIST_SHUIGE_GENERIC_SHELF_FLAGS.dialogueSeen, true)
     set_flag(PROTAGONIST_SHUIGE_GENERIC_SHELF_FLAGS.completed, true)
     return true
 end
 
-local function get_apprenticeship_selected_branch()
+get_apprenticeship_selected_branch = function()
     if get_flag(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.branchSelected) then
         local selectedBranchId = get_flag_int(PROTAGONIST_APPRENTICESHIP_INTRO_FLAGS.selectedBranchId)
         for _, branch in ipairs(PROTAGONIST_APPRENTICESHIP_BRANCHES) do
@@ -793,7 +902,7 @@ local function show_apprenticeship_selected_branch(Dialogue, branch)
     Dialogue.Talk(0, "既已选定，之后狼牙燕翎、洗第二格武功与水阁书房，再按这一支推进。")
 end
 
-local APPRENTICESHIP_SKILL_REWARDS = {
+APPRENTICESHIP_SKILL_REWARDS = {
     abi = {
         skillId = 206,
         skillName = "七弦无形剑",
